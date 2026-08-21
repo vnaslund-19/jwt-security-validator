@@ -4,4 +4,5 @@ __pycache__/
 .DS_Store
 *.md
 *.db
+*.pem
 evaluation/matrix.csv

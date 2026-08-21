@@ -1,0 +1,14 @@
+{
+  "name": "rsa-auth remediated",
+  "base_url": "http://127.0.0.1:5004",
+  "login": {
+    "path": "/login",
+    "credentials": { "username": "alice", "password": "password123" },
+    "token_from": { "source": "json", "field": "token" }
+  },
+  "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
+  "endpoints": { "user": "/me", "admin": "/admin" },
+  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" },
+  "expected": { "issuer": "rsa-auth", "audience": "rsa-auth-clients" },
+  "public_key": "targets/rsa-auth/remediated/public_key.pem"
+}

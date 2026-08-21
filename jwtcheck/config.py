@@ -23,7 +23,8 @@ class Config:
     claims: dict          # names of the subject and role claims, plus the admin value
     expected_issuer: str | None
     expected_audience: str | None
-    wordlist: str | None = None  # optional path for the brute-force passwd list
+    wordlist: str | None = None      # optional path for the brute-force passwd list
+    public_key: str | None = None    # optional path to the RSA public key, for SIG-03
 
 
 REQUIRED_TOP = ["name", "base_url", "login", "send_token", "endpoints", "claims"]
@@ -47,6 +48,7 @@ def load_config(path):
         expected_issuer=expected.get("issuer"),
         expected_audience=expected.get("audience"),
         wordlist=raw.get("wordlist"),
+        public_key=raw.get("public_key"),
     )
 
 
