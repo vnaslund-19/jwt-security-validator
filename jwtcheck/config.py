@@ -23,6 +23,7 @@ class Config:
     claims: dict          # names of the subject and role claims, plus the admin value
     expected_issuer: str | None
     expected_audience: str | None
+    wordlist: str | None = None  # optional path for the brute-force passwd list
 
 
 REQUIRED_TOP = ["name", "base_url", "login", "send_token", "endpoints", "claims"]
@@ -45,6 +46,7 @@ def load_config(path):
         claims=raw["claims"],
         expected_issuer=expected.get("issuer"),
         expected_audience=expected.get("audience"),
+        wordlist=raw.get("wordlist"),
     )
 
 
@@ -61,7 +63,7 @@ def _validate(raw):
         if key not in raw["endpoints"]:
             raise ValueError(f"config endpoints missing key: {key}")
 
-    for key in ("subject", "role"):
+    for key in ("subject", "role", "admin_value"):
         if key not in raw["claims"]:
             raise ValueError(f"config claims missing key: {key}")
 
