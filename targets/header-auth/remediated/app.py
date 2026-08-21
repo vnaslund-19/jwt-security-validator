@@ -6,49 +6,23 @@ role comes from the database instead of the token.
 """
 
 import os
-import sqlite3
+import sys
 from datetime import datetime, timedelta, timezone
 
 import jwt
 from flask import Flask, jsonify, request
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# targets/ has no __init__, so put it on the path to import the shared user store
+sys.path.insert(0, os.path.join(HERE, "..", ".."))
+from common import find_user, get_role, init_db  # noqa: E402
 
 SECRET = "c8b1f0d4e2a67593bd4471aa90fe23c7d5e8091a6f2b3c4d5e6f708192a3b4c5d"
 ALGORITHM = "HS256"
 ISSUER = "header-auth"
 AUDIENCE = "header-auth-clients"
 TOKEN_TTL = timedelta(hours=1)
-DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
-
-SEED_USERS = [
-    ("alice", "password123", "user"),
-    ("admin", "admin123", "admin"),
-]
-
-
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("DROP TABLE IF EXISTS users")
-    conn.execute("CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT, role TEXT)")
-    conn.executemany("INSERT INTO users VALUES (?, ?, ?)", SEED_USERS)
-    conn.commit()
-    conn.close()
-
-
-def find_user(username, password):
-    conn = sqlite3.connect(DB_PATH)
-    row = conn.execute(
-        "SELECT username, role FROM users WHERE username = ? AND password = ?",
-        (username, password),
-    ).fetchone()
-    conn.close()
-    return row
-
-
-def get_role(username):
-    conn = sqlite3.connect(DB_PATH)
-    row = conn.execute("SELECT role FROM users WHERE username = ?", (username,)).fetchone()
-    conn.close()
-    return row[0] if row else None
+DB_PATH = os.path.join(HERE, "users.db")
 
 
 def read_token(auth_header):
@@ -74,7 +48,7 @@ app = Flask(__name__)
 @app.post("/login")
 def login():
     data = request.get_json(silent=True) or {}
-    row = find_user(data.get("username"), data.get("password"))
+    row = find_user(DB_PATH, data.get("username"), data.get("password"))
     if not row:
         return jsonify({"error": "invalid credentials"}), 401
     username, _ = row
@@ -96,7 +70,7 @@ def me():
     claims = read_token(request.headers.get("Authorization"))
     if claims is None:
         return jsonify({"error": "missing or invalid token"}), 401
-    role = get_role(claims["sub"])
+    role = get_role(DB_PATH, claims["sub"])
     if role is None:
         return jsonify({"error": "unknown user"}), 401
     return jsonify({"sub": claims["sub"], "role": role})
@@ -107,12 +81,12 @@ def admin():
     claims = read_token(request.headers.get("Authorization"))
     if claims is None:
         return jsonify({"error": "missing or invalid token"}), 401
-    role = get_role(claims["sub"])
+    role = get_role(DB_PATH, claims["sub"])
     if role != "admin":
         return jsonify({"error": "admins only"}), 403
     return jsonify({"message": "welcome admin", "sub": claims["sub"]})
 
 
 if __name__ == "__main__":
-    init_db()
+    init_db(DB_PATH)
     app.run(host="127.0.0.1", port=5002)

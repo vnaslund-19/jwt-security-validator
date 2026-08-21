@@ -6,38 +6,19 @@ and it trusts the role claim straight from the token.
 """
 
 import os
-import sqlite3
+import sys
 
 import jwt
 from flask import Flask, jsonify, request
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+# targets/ has no __init__, so put it on the path to import the shared user store
+sys.path.insert(0, os.path.join(HERE, "..", ".."))
+from common import find_user, init_db  # noqa: E402
+
 SECRET = "secret"
 ALGORITHM = "HS256"
-DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
-
-SEED_USERS = [
-    ("alice", "password123", "user"),
-    ("admin", "admin123", "admin"),
-]
-
-
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("DROP TABLE IF EXISTS users")
-    conn.execute("CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT, role TEXT)")
-    conn.executemany("INSERT INTO users VALUES (?, ?, ?)", SEED_USERS)
-    conn.commit()
-    conn.close()
-
-
-def find_user(username, password):
-    conn = sqlite3.connect(DB_PATH)
-    row = conn.execute(
-        "SELECT username, role FROM users WHERE username = ? AND password = ?",
-        (username, password),
-    ).fetchone()
-    conn.close()
-    return row
+DB_PATH = os.path.join(HERE, "users.db")
 
 
 def read_token(auth_header):
@@ -56,7 +37,7 @@ app = Flask(__name__)
 @app.post("/login")
 def login():
     data = request.get_json(silent=True) or {}
-    row = find_user(data.get("username"), data.get("password"))
+    row = find_user(DB_PATH, data.get("username"), data.get("password"))
     if not row:
         return jsonify({"error": "invalid credentials"}), 401
     username, role = row
@@ -83,5 +64,5 @@ def admin():
 
 
 if __name__ == "__main__":
-    init_db()
+    init_db(DB_PATH)
     app.run(host="127.0.0.1", port=5001)
