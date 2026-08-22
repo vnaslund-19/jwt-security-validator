@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "jwtcheck target config",
+  "description": "Describes one target app so the tool can run against it without code changes.",
+  "type": "object",
+  "required": ["name", "base_url", "login", "send_token", "endpoints", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string" },
+    "base_url": { "type": "string" },
+    "login": {
+      "type": "object",
+      "required": ["path", "credentials", "token_from"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "credentials": { "type": "object" },
+        "token_from": {
+          "type": "object",
+          "required": ["source"],
+          "additionalProperties": false,
+          "properties": {
+            "source": { "enum": ["json", "cookie"] },
+            "field": { "type": "string" },
+            "name": { "type": "string" }
+          },
+          "allOf": [
+            { "if": { "properties": { "source": { "const": "json" } } }, "then": { "required": ["field"] } },
+            { "if": { "properties": { "source": { "const": "cookie" } } }, "then": { "required": ["name"] } }
+          ]
+        }
+      }
+    },
+    "send_token": {
+      "type": "object",
+      "required": ["via", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "via": { "enum": ["header", "cookie"] },
+        "name": { "type": "string" },
+        "prefix": { "type": "string" }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": ["user", "admin"],
+      "additionalProperties": false,
+      "properties": {
+        "user": { "type": "string" },
+        "admin": { "type": "string" }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "required": ["subject", "role", "admin_value"],
+      "additionalProperties": false,
+      "properties": {
+        "subject": { "type": "string" },
+        "role": { "type": "string" },
+        "admin_value": { "type": "string" }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "issuer": { "type": ["string", "null"] },
+        "audience": { "type": ["string", "null"] }
+      }
+    },
+    "wordlist": { "type": "string" },
+    "public_key": { "type": "string" }
+  }
+}

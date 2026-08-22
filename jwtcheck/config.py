@@ -1,13 +1,28 @@
 """Load and validate a target config.
 
 The config is the only thing that changes between targets. Nothing about a
-target is hardcoded in the tool.
+target is hardcoded in the tool. config-schema.json is the contract for a
+config and doubles as its documentation; a config can point at it with a
+"$schema" key to get editor validation while it is written.
 """
 
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
+
+import jsonschema
+
+SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config-schema.json")
+
+
+def _load_schema():
+    with open(SCHEMA_PATH) as f:
+        return json.load(f)
+
+
+CONFIG_SCHEMA = _load_schema()
 
 
 @dataclass
@@ -25,9 +40,6 @@ class Config:
     expected_audience: str | None
     wordlist: str | None = None      # optional path for the brute-force passwd list
     public_key: str | None = None    # optional path to the RSA public key, for SIG-03
-
-
-REQUIRED_TOP = ["name", "base_url", "login", "send_token", "endpoints", "claims"]
 
 
 def load_config(path):
@@ -53,21 +65,8 @@ def load_config(path):
 
 
 def _validate(raw):
-    missing = [k for k in REQUIRED_TOP if k not in raw]
-    if missing:
-        raise ValueError(f"config missing keys: {', '.join(missing)}")
-
-    for key in ("path", "credentials", "token_from"):
-        if key not in raw["login"]:
-            raise ValueError(f"config login missing key: {key}")
-
-    for key in ("user", "admin"):
-        if key not in raw["endpoints"]:
-            raise ValueError(f"config endpoints missing key: {key}")
-
-    for key in ("subject", "role", "admin_value"):
-        if key not in raw["claims"]:
-            raise ValueError(f"config claims missing key: {key}")
-
-    if "via" not in raw["send_token"]:
-        raise ValueError("config send_token missing key: via")
+    try:
+        jsonschema.validate(raw, CONFIG_SCHEMA)
+    except jsonschema.ValidationError as e:
+        location = ".".join(str(p) for p in e.absolute_path) or "config"
+        raise ValueError(f"invalid config at {location}: {e.message}") from e
