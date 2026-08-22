@@ -1,0 +1,13 @@
+{
+  "name": "cookie-auth remediated",
+  "base_url": "http://127.0.0.1:5007",
+  "login": {
+    "path": "/login",
+    "credentials": { "username": "alice", "password": "password123" },
+    "token_from": { "source": "cookie", "name": "session" }
+  },
+  "send_token": { "via": "cookie", "name": "session" },
+  "endpoints": { "user": "/profile", "admin": "/staff" },
+  "claims": { "subject": "uid", "role": "scope", "admin_value": "admin" },
+  "expected": { "issuer": "cookie-auth", "audience": "cookie-auth-clients" }
+}
