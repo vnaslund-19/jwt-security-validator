@@ -2,15 +2,13 @@
 
 from ..findings import Finding, Verdict
 from ..http import to_evidence
-from ..tokens import tamper_claims
-from ._common import is_accepted, login_token
+from ._common import forge_with_bad_claim, is_accepted
 
 CHECK_ID = "CLM-04"
 
 
 def run(client):
-    token = login_token(client)
-    forged = tamper_claims(token, {"aud": "https://attacker.example"})
+    forged = forge_with_bad_claim(client, {"aud": "https://attacker.example"})
     resp = client.get(client.config.user_path, forged)
     vulnerable = is_accepted(resp)
     return Finding(
