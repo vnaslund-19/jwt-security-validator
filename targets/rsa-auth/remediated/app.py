@@ -100,4 +100,4 @@ if __name__ == "__main__":
     init_db(DB_PATH)
     with open(PUBLIC_KEY_PATH, "wb") as f:
         f.write(PUBLIC_PEM)
-    app.run(host="127.0.0.1", port=5004)
+    app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5004)))

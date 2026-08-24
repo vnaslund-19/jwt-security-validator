@@ -1,8 +1,11 @@
 .venv/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
 .env
 .DS_Store
 *.md
 *.db
 *.pem
+*.log
 evaluation/matrix.csv

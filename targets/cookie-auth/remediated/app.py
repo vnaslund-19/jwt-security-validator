@@ -91,4 +91,4 @@ def staff():
 
 if __name__ == "__main__":
     init_db(DB_PATH)
-    app.run(host="127.0.0.1", port=5007)
+    app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5007)))
