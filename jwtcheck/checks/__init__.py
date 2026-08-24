@@ -1,8 +1,12 @@
 """The ID -> callable registry. Each check exposes run(client) -> Finding."""
 
+import logging
+
 from ..findings import Finding, Verdict
 from . import acl01, acl02, clm01, clm02, clm03, clm04, sec01, sig01, sig02, sig03
 from ._common import is_accepted, login_token
+
+log = logging.getLogger("jwtcheck")
 
 REGISTRY = {
     sig01.CHECK_ID: sig01.run,
@@ -25,8 +29,11 @@ def run_all(client):
     findings = []
     for check_id, run in REGISTRY.items():
         try:
-            findings.append(run(client))
+            finding = run(client)
+            log.debug("check=%s verdict=%s", check_id, finding.verdict.value)
+            findings.append(finding)
         except Exception as exc:
+            log.exception("check=%s errored", check_id)
             findings.append(Finding(
                 check_id=check_id,
                 verdict=Verdict.ERROR,
@@ -49,9 +56,13 @@ def sanity_check(client):
     try:
         token = login_token(client)
     except Exception as exc:
+        log.warning("sanity=fail reason=login")
         return False, f"could not log in: {exc}"
     if not is_accepted(client.get(client.config.user_path, token)):
+        log.warning("sanity=fail reason=valid-token-rejected")
         return False, "a valid token was rejected"
     if is_accepted(client.get(client.config.user_path, BOGUS_TOKEN)):
+        log.warning("sanity=fail reason=bogus-token-accepted")
         return False, "a bogus token was accepted"
+    log.info("sanity=ok")
     return True, "ok"

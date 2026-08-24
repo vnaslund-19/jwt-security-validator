@@ -1,11 +1,15 @@
 """SEC-01: the HMAC secret is weak enough to brute-force from a wordlist."""
 
+import logging
+
 from ..findings import Finding, Verdict
 from ..http import to_evidence
 from ..tokens import brute_force_secret, decode_no_verify, get_header_alg, resign
 from ._common import is_accepted, load_wordlist, login_token
 
 CHECK_ID = "SEC-01"
+
+log = logging.getLogger("jwtcheck")
 
 
 def run(client):
@@ -23,6 +27,7 @@ def run(client):
     secret = brute_force_secret(token, load_wordlist(cfg), alg)
     if secret is None:
         return _finding(Verdict.SAFE, "The signing secret was not found in the wordlist.", evidence=None)
+    log.info("SEC-01 cracked secret=%r", secret)
 
     claims = decode_no_verify(token)
     claims[cfg.claims["role"]] = cfg.claims["admin_value"]

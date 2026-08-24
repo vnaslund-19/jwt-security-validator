@@ -1,6 +1,10 @@
 """Talk to a target: log in, then call protected endpoints with a token."""
 
+import logging
+
 import requests
+
+log = logging.getLogger("jwtcheck")
 
 
 class Client:
@@ -18,12 +22,15 @@ class Client:
         send = cfg.send_token
         if send["via"] == "header":
             headers = {send["name"]: send.get("prefix", "") + token}
-            return self.session.get(cfg.base_url + path, headers=headers)
-        if send["via"] == "cookie":
+            resp = self.session.get(cfg.base_url + path, headers=headers)
+        elif send["via"] == "cookie":
             self.session.cookies.clear()
             self.session.cookies.set(send["name"], token)
-            return self.session.get(cfg.base_url + path)
-        raise ValueError(f"unknown token transport: {send['via']}")
+            resp = self.session.get(cfg.base_url + path)
+        else:
+            raise ValueError(f"unknown token transport: {send['via']}")
+        log.debug("get path=%s status=%s", path, resp.status_code)
+        return resp
 
     def _extract_token(self, resp):
         src = self.config.token_from

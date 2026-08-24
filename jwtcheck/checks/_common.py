@@ -1,5 +1,7 @@
 """Small helpers shared by the checks."""
 
+import logging
+
 from ..tokens import (
     brute_force_secret,
     decode_no_verify,
@@ -9,6 +11,8 @@ from ..tokens import (
     resign,
     tamper_claims,
 )
+
+log = logging.getLogger("jwtcheck")
 
 WEAK_SECRETS = [
     "secret", "password", "123456", "changeme", "admin", "jwt",
@@ -74,17 +78,21 @@ def _resolve_signer(client):
     if alg.startswith("HS"):
         secret = brute_force_secret(token, load_wordlist(cfg), alg)
         if secret:
+            log.info("signing path=weak-secret")
             return lambda c: resign(c, secret, alg)
 
     if alg.startswith(("RS", "ES", "PS")) and cfg.public_key:
         with open(cfg.public_key, "rb") as f:
             public_key = f.read()
         if _server_accepts(client, forge_hs256(claims, public_key)):
+            log.info("signing path=rsa-confusion")
             return lambda c: forge_hs256(c, public_key)
 
     if _server_accepts(client, forge_alg_none(claims)):
+        log.info("signing path=alg-none")
         return forge_alg_none
 
+    log.info("signing path=none")
     return None
 
 
