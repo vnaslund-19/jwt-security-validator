@@ -9,3 +9,7 @@ __pycache__/
 *.pem
 *.log
 evaluation/matrix.csv
+reports/
+build/
+dist/
+*.egg-info/

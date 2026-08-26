@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jwtcheck"
+version = "0.1.0"
+description = "Config-driven detector of JWT implementation weaknesses"
+requires-python = ">=3.10"
+dependencies = [
+    "PyJWT==2.13.0",
+    "jsonschema==4.26.0",
+    "requests==2.34.2",
+]
+
+# Flask and cryptography run the bundled targets; pytest runs the suite.
+# None of them are needed by the tool itself.
+[project.optional-dependencies]
+dev = [
+    "Flask==3.1.3",
+    "cryptography==50.0.0",
+    "pytest==9.1.1",
+]
+
+[project.scripts]
+jwtcheck = "jwtcheck.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["jwtcheck*"]
+
+# config-schema.json sits next to config.py and is read by path, so it has to
+# ship with the package or validation breaks after install.
+[tool.setuptools.package-data]
+jwtcheck = ["config-schema.json"]
