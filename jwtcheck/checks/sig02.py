@@ -20,7 +20,7 @@ def run(client):
         title="Tampered token accepted",
         explanation=(
             "The server accepted a token whose payload was modified after signing, "
-            "so the signature is not being verified."
+            "which means that the signature is not being verified."
             if vulnerable
             else "The server rejected a token with a modified payload."
         ),
