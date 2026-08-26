@@ -1,0 +1,60 @@
+@startuml jwtcheck-architecture
+title jwtcheck — config-driven JWT weakness detector
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam linetype polyline
+
+' ---------- inputs ----------
+folder "configs/\none JSON per target variant" as configs
+folder "targets/  (Flask apps)\neach = vulnerable/ + remediated/\nover shared core" as targets
+
+' ---------- the tool ----------
+package "jwtcheck  (installable CLI)" as tool {
+  [cli.py\nargparse entry point] as cli
+  [config.py\nload + schema-validate] as config
+  [config-schema.json\npackage data] as schema
+  [http.py\nlogin, send token, evidence] as http
+  [tokens.py\nforge / tamper / brute-force] as tokens
+  [checks/\nregistry: one module per check id\nrun_all + sanity_check] as checks
+  [findings.py\nFinding + Verdict  (contract)] as findings #LightYellow
+  [report.py\nrender findings: terminal + reports] as report
+}
+
+' ---------- evaluation ----------
+package "evaluation + tests" as evalpkg {
+  folder "expected/\nverdict per (target, check)" as expected
+  [scorer.py\nactual vs expected] as scorer
+  [tests/\npytest gate] as tests
+}
+
+' ---------- outputs ----------
+folder "matrix.md + matrix.csv" as matrix
+[terminal summary\nverdict per check] as term
+folder "report files\n<name>.json + <name>.md" as reportfiles
+
+' ---------- data flow ----------
+configs --> config : path
+config ..> schema : validate
+cli --> config : load_config
+cli --> checks : sanity_check + run_all
+cli --> report : findings
+checks --> http : call endpoints
+checks --> tokens : build token
+checks --> findings : Finding + evidence
+http --> targets : HTTP attack
+report --> term
+report --> reportfiles
+scorer --> checks : run all
+scorer --> expected : compare
+scorer --> matrix
+tests --> checks : run all
+tests --> targets : start
+tests --> expected : assert
+
+legend bottom
+  findings.py is the frozen contract: a VULNERABLE verdict
+  carries the HTTP request/response that proves it.
+endlegend
+@enduml

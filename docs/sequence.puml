@@ -1,0 +1,38 @@
+@startuml jwtcheck-sequence
+title One check run (e.g. ACL-01 role escalation)
+
+skinparam shadowing false
+actor User
+participant "cli.py" as CLI
+participant "config.py" as CFG
+participant "http.Client" as HTTP
+participant "tokens.py" as TOK
+participant "checks/" as CHK
+participant "target app" as APP
+participant "report.py" as REP
+
+User -> CLI : jwtcheck --config <path>
+CLI -> CFG : load_config(path)
+CFG -> CFG : validate against schema
+CFG --> CLI : Config
+
+CLI -> CHK : sanity_check(client)
+CHK -> HTTP : login + call with valid / bogus token
+HTTP -> APP : HTTP requests
+APP --> HTTP : accept valid, reject bogus
+HTTP --> CHK : ok
+CHK --> CLI : reliable
+
+CLI -> CHK : run_all(client)
+CHK -> TOK : forge token with bad claim\n(cracked secret / alg:none / tamper)
+TOK --> CHK : attack token
+CHK -> HTTP : GET protected endpoint (forged)
+HTTP -> APP : GET /admin  (forged token)
+APP --> HTTP : 200 + body
+HTTP --> CHK : response = evidence
+CHK --> CLI : Finding(verdict, evidence)
+
+CLI -> REP : summarize + write_reports
+REP --> User : terminal summary + JSON/MD reports
+
+@enduml
