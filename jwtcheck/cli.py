@@ -6,7 +6,7 @@ import logging
 from .checks import run_all, sanity_check
 from .config import load_config
 from .http import Client
-from .report import summarize
+from .report import summarize, write_reports
 
 
 def main():
@@ -21,6 +21,10 @@ def main():
     parser.add_argument(
         "--log-file",
         help="write logs here instead of the terminal",
+    )
+    parser.add_argument(
+        "--report-dir",
+        help="write a JSON and a Markdown report for this run into this directory",
     )
     args = parser.parse_args()
 
@@ -40,6 +44,10 @@ def main():
     if not ok:
         print(f"WARNING: results may be unreliable ({reason})")
     print(summarize(findings))
+
+    if args.report_dir:
+        json_path, md_path = write_reports(args.report_dir, config, findings, ok, reason)
+        print(f"reports: {json_path}, {md_path}")
 
 
 if __name__ == "__main__":

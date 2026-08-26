@@ -1,6 +1,6 @@
 {
   "$schema": "../jwtcheck/config-schema.json",
-  "name": "rsa-auth vulnerable",
+  "name": "rsa-auth-vulnerable",
   "base_url": "http://127.0.0.1:5003",
   "login": {
     "path": "/login",

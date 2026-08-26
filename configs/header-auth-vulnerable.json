@@ -1,6 +1,6 @@
 {
   "$schema": "../jwtcheck/config-schema.json",
-  "name": "header-auth vulnerable",
+  "name": "header-auth-vulnerable",
   "base_url": "http://127.0.0.1:5001",
   "login": {
     "path": "/login",

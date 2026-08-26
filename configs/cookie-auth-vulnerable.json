@@ -1,6 +1,6 @@
 {
   "$schema": "../jwtcheck/config-schema.json",
-  "name": "cookie-auth vulnerable",
+  "name": "cookie-auth-vulnerable",
   "base_url": "http://127.0.0.1:5006",
   "login": {
     "path": "/login",

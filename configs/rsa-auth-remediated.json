@@ -1,6 +1,6 @@
 {
   "$schema": "../jwtcheck/config-schema.json",
-  "name": "rsa-auth remediated",
+  "name": "rsa-auth-remediated",
   "base_url": "http://127.0.0.1:5004",
   "login": {
     "path": "/login",
