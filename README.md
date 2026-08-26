@@ -16,6 +16,9 @@ pip install .
 Requires Python 3.10+. This installs the `jwtcheck` command and its runtime
 dependencies (PyJWT, jsonschema, requests).
 
+If you are working on the tool itself, running the demo apps, or running the
+tests, see [DEV.md](DEV.md) for the development setup.
+
 ## Configure jwtcheck for your app
 
 A config is a JSON file that describes your app so the tool can log in, send a
@@ -105,3 +108,9 @@ Flags:
 Each check returns one of four verdicts: `VULNERABLE` (weakness exploited, with
 the HTTP request/response that proves it), `SAFE` (attack ran and was rejected),
 `SKIPPED` (not applicable to this config), or `ERROR` (check could not complete).
+
+## Development
+
+The repo also contains demo target apps, an evaluation harness that scores the
+tool against an expected-results manifest, and the test suite. Those are for
+developing and proving the tool, not for using it. See [DEV.md](DEV.md).

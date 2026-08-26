@@ -6,6 +6,7 @@ __pycache__/
 .DS_Store
 *.md
 !README.md
+!DEV.md
 *.db
 *.pem
 *.log
