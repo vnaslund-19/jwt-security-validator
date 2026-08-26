@@ -2,6 +2,8 @@
 
 import argparse
 import logging
+import os
+import sys
 
 from .checks import run_all, sanity_check
 from .config import load_config
@@ -40,10 +42,12 @@ def main():
     ok, reason = sanity_check(client)
     findings = run_all(client)
 
+    # color only a real terminal, and stay plain when NO_COLOR is set or output is redirected
+    color = sys.stdout.isatty() and "NO_COLOR" not in os.environ
     print(f"target: {config.name}")
     if not ok:
         print(f"WARNING: results may be unreliable ({reason})")
-    print(summarize(findings))
+    print(summarize(findings, color=color))
 
     if args.report_dir:
         json_path, md_path = write_reports(args.report_dir, config, findings, ok, reason)

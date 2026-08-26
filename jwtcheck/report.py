@@ -3,11 +3,24 @@
 import json
 import os
 
+# ANSI colors for the verdict tag, so a run is quick to scan
+_RESET = "\033[0m"
+_VERDICT_COLOR = {
+    "VULNERABLE": "\033[31m",  # red
+    "SAFE": "\033[32m",        # green
+    "SKIPPED": "\033[2m",      # dim
+    "ERROR": "\033[2m",        # dim
+}
 
-def summarize(findings):
+
+def summarize(findings, color=False):
     lines = []
     for f in findings:
-        lines.append(f"[{f.verdict.value}] {f.check_id}  {f.title}")
+        verdict = f.verdict.value
+        tag = f"[{verdict}]"
+        if color:
+            tag = f"{_VERDICT_COLOR[verdict]}{tag}{_RESET}"
+        lines.append(f"{tag} {f.check_id}  {f.title}")
         if f.verdict == f.verdict.VULNERABLE and f.evidence:
             req = f.evidence["request"]
             res = f.evidence["response"]
