@@ -33,7 +33,8 @@ def run_all(client):
             log.debug("check=%s verdict=%s", check_id, finding.verdict.value)
             findings.append(finding)
         except Exception as exc:
-            log.exception("check=%s errored", check_id)
+            log.error("check=%s errored: %s", check_id, exc)
+            log.debug("check=%s traceback", check_id, exc_info=True)
             findings.append(Finding(
                 check_id=check_id,
                 verdict=Verdict.ERROR,
@@ -56,13 +57,19 @@ def sanity_check(client):
     try:
         token = login_token(client)
     except Exception as exc:
-        log.warning("sanity=fail reason=login")
+        log.info("sanity=fail reason=login")
         return False, f"could not log in: {exc}"
-    if not is_accepted(client.get(client.config.user_path, token)):
-        log.warning("sanity=fail reason=valid-token-rejected")
+    try:
+        valid_ok = is_accepted(client.get(client.config.user_path, token))
+        bogus_ok = is_accepted(client.get(client.config.user_path, BOGUS_TOKEN))
+    except Exception as exc:
+        log.info("sanity=fail reason=request")
+        return False, f"could not reach the target: {exc}"
+    if not valid_ok:
+        log.info("sanity=fail reason=valid-token-rejected")
         return False, "a valid token was rejected"
-    if is_accepted(client.get(client.config.user_path, BOGUS_TOKEN)):
-        log.warning("sanity=fail reason=bogus-token-accepted")
+    if bogus_ok:
+        log.info("sanity=fail reason=bogus-token-accepted")
         return False, "a bogus token was accepted"
     log.info("sanity=ok")
     return True, "ok"

@@ -43,9 +43,15 @@ class Config:
 
 
 def load_config(path):
-    with open(path) as f:
-        raw = json.load(f)
+    try:
+        with open(path) as f:
+            raw = json.load(f)
+    except OSError as e:
+        raise ValueError(f"could not read config {path}: {e.strerror or e}") from None
+    except json.JSONDecodeError as e:
+        raise ValueError(f"config {path} is not valid JSON: {e}") from None
     _validate(raw)
+    _check_paths(raw)
     expected = raw.get("expected", {})
     return Config(
         name=raw["name"],
@@ -70,3 +76,11 @@ def _validate(raw):
     except jsonschema.ValidationError as e:
         location = ".".join(str(p) for p in e.absolute_path) or "config"
         raise ValueError(f"invalid config at {location}: {e.message}") from e
+
+
+def _check_paths(raw):
+    # fail early with a clear message if an optional file path is wrong
+    for key in ("wordlist", "public_key"):
+        path = raw.get(key)
+        if path is not None and not os.path.isfile(path):
+            raise ValueError(f"{key} file not found: {path}")
