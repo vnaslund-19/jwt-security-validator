@@ -51,6 +51,36 @@ transport fields:
   "send_token": { "via": "cookie", "name": "session" }
 ```
 
+### Testing for a weak signing secret (SEC-01)
+
+SEC-01 recovers the HMAC signing secret by brute force. If it succeeds, the
+secret is guessable and anyone can forge valid tokens, so the finding is
+`VULNERABLE` with the forged request as proof.
+
+The built-in list is only a dozen of the most common secrets, enough to flag an
+obviously weak one. For a realistic test, point `wordlist` at a full list. The
+usual choice is `rockyou.txt`:
+
+```sh
+curl -L -o rockyou.txt \
+  https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
+```
+
+Then set the path in your config:
+
+```json
+"wordlist": "rockyou.txt"
+```
+
+rockyou has about 14 million entries, so a secret near the bottom is a full scan
+of roughly a minute and a half. It is ordered most-common-first, so for a run
+that finishes in under a second and still catches weak secrets, use just the top
+of it:
+
+```sh
+head -n 100000 rockyou.txt > rockyou-top100k.txt
+```
+
 Fields:
 
 - `name` identifies the target and names its report files.
