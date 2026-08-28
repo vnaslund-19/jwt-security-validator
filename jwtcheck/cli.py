@@ -53,6 +53,9 @@ def _run(args):
         print(f"error: could not open log file {args.log_file}: {e.strerror or e}", file=sys.stderr)
         raise SystemExit(2) from None
 
+    # keep urllib3 connection logs out of the debug trace
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     try:
         config = load_config(args.config)
     except ValueError as e:
