@@ -75,8 +75,10 @@ def _bottom_secret(words):
 
 
 def run(path):
+    # read the whole wordlist in. the benchmark needs the positions
+    # and then scans the same words twice
     t0 = time.perf_counter()
-    words = load_wordlist(_Cfg(path))
+    words = list(load_wordlist(_Cfg(path)))
     load_secs = time.perf_counter() - t0
     count = len(words)
 

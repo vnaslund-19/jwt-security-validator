@@ -6,7 +6,7 @@ PyJWT     : 2.13.0
 wordlist  : rockyou.txt
 
 entries          : 14,344,373
-load into memory : 1.2 s
+load into memory : 1.0 s
 full scan (miss) : 95.7 s   (secret absent, every entry tried)
 throughput       : 149,919 candidates/sec
 
@@ -16,4 +16,4 @@ common secrets near the top, crack time from throughput (position / rate):
   trustno1     position        1,001   ~0.007 s
 
 a secret near the bottom, cracked and timed:
-  ciocolatax   position   14,344,357   95.7 s   (recovered)
+  ciocolatax   position   14,344,357   95.9 s   (recovered)

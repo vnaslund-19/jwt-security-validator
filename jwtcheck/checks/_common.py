@@ -34,10 +34,19 @@ def is_accepted(resp):
 
 
 def load_wordlist(cfg):
+    # read a configured wordlist one line at a time so a large
+    # file never sits in memory. the built-in list is the default.
     if not cfg.wordlist:
         return WEAK_SECRETS
-    with open(cfg.wordlist, encoding="utf-8", errors="ignore") as f:
-        return [line.strip() for line in f if line.strip()]
+    return _read_wordlist(cfg.wordlist)
+
+
+def _read_wordlist(path):
+    with open(path, encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            secret = line.strip()
+            if secret:
+                yield secret
 
 
 def forge_with_bad_claim(client, changes):
