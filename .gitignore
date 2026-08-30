@@ -11,6 +11,7 @@ __pycache__/
 *.pem
 *.log
 evaluation/matrix.csv
+rockyou*.txt
 reports/
 build/
 dist/

@@ -1,0 +1,19 @@
+SEC-01 brute-force benchmark
+
+host      : macOS-14.6.1-arm64-arm-64bit-Mach-O
+python    : 3.14.5
+PyJWT     : 2.13.0
+wordlist  : rockyou.txt
+
+entries          : 14,344,373
+load into memory : 1.2 s
+full scan (miss) : 95.7 s   (secret absent, every entry tried)
+throughput       : 149,919 candidates/sec
+
+common secrets near the top, crack time from throughput (position / rate):
+  123456       position            1   ~0.000 s
+  password     position            4   ~0.000 s
+  trustno1     position        1,001   ~0.007 s
+
+a secret near the bottom, cracked and timed:
+  ciocolatax   position   14,344,357   95.7 s   (recovered)
