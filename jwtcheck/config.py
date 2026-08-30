@@ -36,8 +36,6 @@ class Config:
     user_path: str
     admin_path: str
     claims: dict          # names of the subject and role claims, plus the admin value
-    expected_issuer: str | None
-    expected_audience: str | None
     wordlist: str | None = None      # optional path for the brute-force passwd list
     public_key: str | None = None    # optional path to the RSA public key, for SIG-03
 
@@ -52,7 +50,6 @@ def load_config(path):
         raise ValueError(f"config {path} is not valid JSON: {e}") from None
     _validate(raw)
     _check_paths(raw)
-    expected = raw.get("expected", {})
     return Config(
         name=raw["name"],
         base_url=raw["base_url"].rstrip("/"),
@@ -63,8 +60,6 @@ def load_config(path):
         user_path=raw["endpoints"]["user"],
         admin_path=raw["endpoints"]["admin"],
         claims=raw["claims"],
-        expected_issuer=expected.get("issuer"),
-        expected_audience=expected.get("audience"),
         wordlist=raw.get("wordlist"),
         public_key=raw.get("public_key"),
     )

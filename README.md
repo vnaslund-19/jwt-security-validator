@@ -37,8 +37,7 @@ that returns the token in the login JSON and expects it back in an
   },
   "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
   "endpoints": { "user": "/me", "admin": "/admin" },
-  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" },
-  "expected": { "issuer": null, "audience": null }
+  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" }
 }
 ```
 
@@ -92,8 +91,6 @@ Fields:
 - `endpoints.user` is any authenticated endpoint; `endpoints.admin` is
   admin-only.
 - `claims` names the subject and role claims and the value that means admin.
-- `expected.issuer` / `expected.audience` are the values a correct app should
-  enforce, used by CLM-03 and CLM-04. Use `null` when the app does not set them.
 - `wordlist` (optional) is a path for the SEC-01 brute force; a small built-in
   list is the default.
 - `public_key` (optional) is a path to the RSA public key, used by SIG-03.

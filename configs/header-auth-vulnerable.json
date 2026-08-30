@@ -9,6 +9,5 @@
   },
   "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
   "endpoints": { "user": "/me", "admin": "/admin" },
-  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" },
-  "expected": { "issuer": null, "audience": null }
+  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" }
 }

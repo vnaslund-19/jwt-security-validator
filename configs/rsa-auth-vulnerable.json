@@ -10,6 +10,5 @@
   "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
   "endpoints": { "user": "/me", "admin": "/admin" },
   "claims": { "subject": "sub", "role": "role", "admin_value": "admin" },
-  "expected": { "issuer": "rsa-auth", "audience": "rsa-auth-clients" },
   "public_key": "targets/rsa-auth/vulnerable/public_key.pem"
 }

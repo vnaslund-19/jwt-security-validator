@@ -61,14 +61,6 @@
         "admin_value": { "type": "string" }
       }
     },
-    "expected": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "issuer": { "type": ["string", "null"] },
-        "audience": { "type": ["string", "null"] }
-      }
-    },
     "wordlist": { "type": "string" },
     "public_key": { "type": "string" }
   }

@@ -9,6 +9,5 @@
   },
   "send_token": { "via": "cookie", "name": "session" },
   "endpoints": { "user": "/profile", "admin": "/staff" },
-  "claims": { "subject": "uid", "role": "scope", "admin_value": "admin" },
-  "expected": { "issuer": null, "audience": null }
+  "claims": { "subject": "uid", "role": "scope", "admin_value": "admin" }
 }
