@@ -117,6 +117,11 @@ Flags:
   shows every request.
 - `--log-file PATH` sends logs to a file instead of stderr.
 
+A saved report contains live credentials: it records the tokens the checks send,
+and the signing secret if SEC-01 cracks one. Anyone who has the file could use
+them to log in to the app you tested, so keep the reports private and out of
+version control.
+
 ## What it checks
 
 | ID     | Group          | Detects                                             |
