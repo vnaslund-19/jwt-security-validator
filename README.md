@@ -146,3 +146,7 @@ the HTTP request/response that proves it), `SAFE` (attack ran and was rejected),
 The repo also contains demo target apps, an evaluation harness that scores the
 tool against an expected-results manifest, and the test suite. Those are for
 developing and proving the tool, not for using it. See [DEV.md](DEV.md).
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

@@ -1,12 +1,16 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "jwtcheck"
 version = "0.1.0"
 description = "Config-driven detector of JWT implementation weaknesses"
+readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Victor Näslund Cuesta", email = "victor.naslundc@gmail.com" }]
 dependencies = [
     "PyJWT==2.13.0",
     "jsonschema==4.26.0",
@@ -25,6 +29,10 @@ dev = [
 
 [project.scripts]
 jwtcheck = "jwtcheck.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vnaslund-19/jwt-security-validator"
+Repository = "https://github.com/vnaslund-19/jwt-security-validator"
 
 [tool.setuptools.packages.find]
 include = ["jwtcheck*"]
