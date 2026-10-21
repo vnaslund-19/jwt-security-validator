@@ -16,7 +16,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", ".."))
 from common import find_user, init_db  # noqa: E402
 
-SECRET = "secret"
+SECRET = "secret"  # weak, easily guessed signing secret
 ALGORITHM = "HS256"
 DB_PATH = os.path.join(HERE, "users.db")
 
@@ -26,6 +26,7 @@ def read_token(auth_header):
         return None
     token = auth_header.split(" ", 1)[1]
     try:
+        # never verifies the signature, so forged and tampered tokens are accepted
         return jwt.decode(token, options={"verify_signature": False})
     except jwt.InvalidTokenError:
         return None

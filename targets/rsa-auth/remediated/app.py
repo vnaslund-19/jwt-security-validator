@@ -42,6 +42,7 @@ def read_token(auth_header):
         return jwt.decode(
             token,
             PUBLIC_PEM,
+            # pins RS256, so an HS256 token forged with the public key is rejected
             algorithms=["RS256"],
             issuer=ISSUER,
             audience=AUDIENCE,

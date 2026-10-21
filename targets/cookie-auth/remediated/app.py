@@ -17,6 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", ".."))
 from common import find_user, get_role, init_db  # noqa: E402
 
+# strong, random signing secret
 SECRET = "a3f5c9d18b6e2470af8c1d59e30b7246c5a9f812b4e6708192a3b4c5d6e7f809"
 ALGORITHM = "HS256"
 ISSUER = "cookie-auth"
@@ -30,6 +31,8 @@ def read_token(cookie):
     if not cookie:
         return None
     try:
+        # verifies the signature and enforces the claims: alg pinned, iss/aud checked,
+        # and exp/nbf/iss/aud/uid all required to be present
         return jwt.decode(
             cookie,
             SECRET,
@@ -72,6 +75,7 @@ def profile():
     claims = read_token(request.cookies.get(COOKIE_NAME))
     if claims is None:
         return jsonify({"error": "missing or invalid token"}), 401
+    # scope comes from the database, not the token, so a tampered scope claim has no effect
     scope = get_role(DB_PATH, claims["uid"])
     if scope is None:
         return jsonify({"error": "unknown user"}), 401

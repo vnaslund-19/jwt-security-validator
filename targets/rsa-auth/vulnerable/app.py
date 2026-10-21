@@ -3,7 +3,7 @@
 Signs tokens with RS256. The flaw is that it trusts the token's alg: an RS256
 token is checked with the RSA public key, but an HS256 token is checked with
 HMAC using that same public key. The public key is public, so anyone can forge
-an HS256 token the server accepts. Everything else about the app is sound.
+an HS256 token the server accepts. Everything else about the app is sound. (change 'sound' wording ffs)
 
 The private key stays in memory. The public key is written next to this file so
 the checker can read it, the way an attacker would obtain a published key.
@@ -66,6 +66,8 @@ def _verify_signature(token):
         except jwt.InvalidTokenError:
             return None
     if alg == "HS256":
+        # algorithm confusion: trusts the token's alg and checks an HS256 token with the
+        # public key as the HMAC secret, so anyone with the public key can forge a token
         return _verify_hs256_with_public_key(token)
     return None
 

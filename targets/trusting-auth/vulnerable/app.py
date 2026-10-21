@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", ".."))
 from common import find_user, init_db  # noqa: E402
 
-SECRET = "secret"
+SECRET = "secret"  # weak, easily guessed signing secret
 ALGORITHM = "HS256"
 DB_PATH = os.path.join(HERE, "users.db")
 

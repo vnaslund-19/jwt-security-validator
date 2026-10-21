@@ -17,6 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", ".."))
 from common import find_user, get_role, init_db  # noqa: E402
 
+# strong, random signing secret
 SECRET = "c8b1f0d4e2a67593bd4471aa90fe23c7d5e8091a6f2b3c4d5e6f708192a3b4c5d"
 ALGORITHM = "HS256"
 ISSUER = "header-auth"
@@ -30,6 +31,8 @@ def read_token(auth_header):
         return None
     token = auth_header.split(" ", 1)[1]
     try:
+        # verifies the signature and enforces the claims: alg pinned, iss/aud checked,
+        # and exp/nbf/iss/aud/sub all required to be present
         return jwt.decode(
             token,
             SECRET,
@@ -70,6 +73,7 @@ def me():
     claims = read_token(request.headers.get("Authorization"))
     if claims is None:
         return jsonify({"error": "missing or invalid token"}), 401
+    # role comes from the database, not the token, so a tampered role claim has no effect
     role = get_role(DB_PATH, claims["sub"])
     if role is None:
         return jsonify({"error": "unknown user"}), 401
