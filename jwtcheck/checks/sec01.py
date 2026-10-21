@@ -29,19 +29,36 @@ def run(client):
         return _finding(Verdict.SAFE, "The signing secret was not found in the wordlist.", evidence=None)
     log.info("SEC-01 cracked secret=%r", secret)
 
+    # Recovering the secret is total forgery capability, so this is the
+    # vulnerability regardless of the admin escalation below. Prove forgery with
+    # a token carrying a marker claim the server never issued.
     claims = decode_no_verify(token)
-    claims[cfg.claims["role"]] = cfg.claims["admin_value"]
-    forged = resign(claims, secret, alg)
-    resp = client.get(cfg.admin_path, forged)
-    accepted = is_accepted(resp)
-    if accepted:
-        explanation = (
-            f"The signing secret '{secret}' was recovered from a wordlist and used to "
-            "forge an admin token the server accepted."
+    forged = resign({**claims, "jwtcheck_forged": True}, secret, alg)
+    forge_resp = client.get(cfg.user_path, forged)
+
+    # Admin escalation is extra evidence: it fails when roles are enforced
+    # server-side, which does not make the secret any less broken.
+    admin_claims = {**claims, cfg.claims["role"]: cfg.claims["admin_value"]}
+    admin_resp = client.get(cfg.admin_path, resign(admin_claims, secret, alg))
+    escalated = is_accepted(admin_resp)
+
+    explanation = (
+        f"The signing secret '{secret}' was recovered from the wordlist, so any token can be "
+        f"forged; a token re-signed with it was accepted at {cfg.user_path}. "
+    )
+    if escalated:
+        explanation += (
+            f"Escalating '{cfg.claims['role']}' to '{cfg.claims['admin_value']}' also reached "
+            f"the admin-only {cfg.admin_path}."
         )
     else:
-        explanation = f"The signing secret '{secret}' was recovered, but the forged admin token was rejected."
-    return _finding(Verdict.VULNERABLE if accepted else Verdict.SAFE, explanation, to_evidence(resp))
+        explanation += (
+            f"Escalating '{cfg.claims['role']}' to '{cfg.claims['admin_value']}' did not reach "
+            f"{cfg.admin_path} (roles are likely enforced server-side), but the secret is still broken."
+        )
+
+    evidence = to_evidence(admin_resp if escalated else forge_resp)
+    return _finding(Verdict.VULNERABLE, explanation, evidence)
 
 
 def _finding(verdict, explanation, evidence):
