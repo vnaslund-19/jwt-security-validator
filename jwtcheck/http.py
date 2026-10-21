@@ -12,9 +12,9 @@ class Client:
         self.config = config
         self.session = requests.Session()
 
-    def login(self):
+    def login(self, credentials=None):
         cfg = self.config
-        resp = self.session.post(cfg.base_url + cfg.login_path, json=cfg.credentials)
+        resp = self.session.post(cfg.base_url + cfg.login_path, json=credentials or cfg.credentials)
         return self._extract_token(resp), resp
 
     def get(self, path, token):

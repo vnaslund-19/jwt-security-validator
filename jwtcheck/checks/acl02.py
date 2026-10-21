@@ -11,22 +11,52 @@ CHECK_ID = "ACL-02"
 def run(client):
     cfg = client.config
     sub_claim = cfg.claims["subject"]
-    original = decode_no_verify(login_token(client)).get(sub_claim)
-    swapped = f"{original}-impersonated"
-    forged = forge_with_bad_claim(client, {sub_claim: swapped})
+    token = login_token(client)
+    original = decode_no_verify(token).get(sub_claim)
+    target = _swap_target(client, sub_claim, original)
+
+    # if the endpoint shows the identity, the swap can be confirmed by finding the
+    # new name in the response. if it shows nothing, the verdict falls back to
+    # whether the token was accepted (the explanation says which).
+    echoes_identity = str(original) in client.get(cfg.user_path, token).text
+
+    forged = forge_with_bad_claim(client, {sub_claim: target})
     resp = client.get(cfg.user_path, forged)
-    vulnerable = is_accepted(resp) and swapped in resp.text
+    accepted = is_accepted(resp)
+    confirmed = accepted and echoes_identity and str(target) in resp.text
+    assumed = accepted and not echoes_identity
+
+    if confirmed:
+        explanation = (
+            f"The server returned '{target}' for a token with {sub_claim} swapped from "
+            f"'{original}', confirming identity is read straight from the token."
+        )
+    elif assumed:
+        explanation = (
+            f"The server accepted a token with {sub_claim} swapped from '{original}' to "
+            f"'{target}'. The endpoint does not reveal identity, so this is inferred from "
+            "acceptance, not a confirmed swap."
+        )
+    else:
+        explanation = "The server did not accept a swapped identity."
+
     return Finding(
         check_id=CHECK_ID,
-        verdict=Verdict.VULNERABLE if vulnerable else Verdict.SAFE,
+        verdict=Verdict.VULNERABLE if (confirmed or assumed) else Verdict.SAFE,
         severity="high",
         title="Identity swap via sub claim",
-        explanation=(
-            f"The server accepted a token with {sub_claim} changed from '{original}' to "
-            f"'{swapped}', so identity is read straight from the token."
-            if vulnerable
-            else "The server did not accept a swapped identity."
-        ),
+        explanation=explanation,
         remediation="Verify the signature so the sub claim cannot be swapped.",
         evidence=to_evidence(resp),
     )
+
+
+def _swap_target(client, sub_claim, original):
+    # swap to a real second account if the config names one, so apps that reject
+    # an unknown user are still tested. otherwise make up a name.
+    creds = client.config.impersonate
+    if creds:
+        other, _ = client.login(creds)
+        if other:
+            return decode_no_verify(other).get(sub_claim)
+    return f"{original}-impersonated"

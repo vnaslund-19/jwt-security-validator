@@ -5,6 +5,7 @@
   "login": {
     "path": "/login",
     "credentials": { "username": "alice", "password": "password123" },
+    "impersonate": { "username": "idswap", "password": "idswap123" },
     "token_from": { "source": "cookie", "name": "session" }
   },
   "send_token": { "via": "cookie", "name": "session" },

@@ -61,6 +61,10 @@ Fields:
 - `endpoints.user` is any authenticated endpoint; `endpoints.admin` is
   admin-only.
 - `claims` names the subject and role claims and the value that means admin.
+- `login.impersonate` (optional) is a second real account on the target. The
+  identity-swap check (ACL-02) logs in as it, then forges a token claiming to be
+  that user. Without it the check uses an invented username, which would be
+  rejected by an app that checks whether the user exists.
 - `wordlist` (optional) is a path to the wordlist for the weak-secret brute
   force (SEC-01), defaulting to a small built-in list.
 - `public_key` (optional) is a path to the RSA public key, used by SIG-03.

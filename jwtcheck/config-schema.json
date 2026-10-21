@@ -16,6 +16,7 @@
       "properties": {
         "path": { "type": "string" },
         "credentials": { "type": "object" },
+        "impersonate": { "type": "object" },
         "token_from": {
           "type": "object",
           "required": ["source"],

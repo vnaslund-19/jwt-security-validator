@@ -8,6 +8,7 @@ import sqlite3
 
 SEED_USERS = [
     ("alice", "password123", "user"),
+    ("idswap", "idswap123", "user"),
     ("admin", "admin123", "admin"),
 ]
 
