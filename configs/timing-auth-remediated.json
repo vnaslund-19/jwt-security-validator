@@ -1,0 +1,14 @@
+{
+  "$schema": "../jwtcheck/config-schema.json",
+  "name": "timing-auth-remediated",
+  "base_url": "http://127.0.0.1:5009",
+  "login": {
+    "path": "/login",
+    "credentials": { "username": "alice", "password": "password123" },
+    "impersonate": { "username": "idswap", "password": "idswap123" },
+    "token_from": { "source": "json", "field": "token" }
+  },
+  "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
+  "endpoints": { "user": "/me", "admin": "/admin" },
+  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" }
+}

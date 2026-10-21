@@ -16,7 +16,7 @@ extra adds Flask and cryptography (to run the demo targets) and pytest.
 
 ## Demo targets
 
-The repo ships four demo apps under `targets/`, each with a vulnerable and,
+The repo ships five demo apps under `targets/`, each with a vulnerable and,
 where relevant, a remediated variant over shared core. Their configs are in
 `configs/`, and each app's default port matches its config's `base_url`.
 
@@ -28,6 +28,9 @@ where relevant, a remediated variant over shared core. Their configs are in
   confusion check.
 - **trusting-auth** (5005): verifies signatures but skips the claim checks, so
   one run shows a mix of SAFE and VULNERABLE.
+- **timing-auth** (5008 / 5009): a strong secret that can't be forged, but the
+  vulnerable variant ignores `exp`. CLM-01 catches it by replaying the app's own
+  short-lived token after it expires, not by forging one.
 
 Run one and point the tool at it:
 
