@@ -1,0 +1,101 @@
+# Detection matrix
+
+| Target | Variant | Check | Expected | Actual | Result |
+|--------|---------|-------|----------|--------|--------|
+| cookie-auth | remediated | SIG-01 | SAFE | SAFE | TN |
+| cookie-auth | remediated | SIG-02 | SAFE | SAFE | TN |
+| cookie-auth | remediated | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| cookie-auth | remediated | SEC-01 | SAFE | SAFE | TN |
+| cookie-auth | remediated | CLM-01 | SAFE | SAFE | TN |
+| cookie-auth | remediated | CLM-02 | SAFE | SAFE | TN |
+| cookie-auth | remediated | CLM-03 | SAFE | SAFE | TN |
+| cookie-auth | remediated | CLM-04 | SAFE | SAFE | TN |
+| cookie-auth | remediated | ACL-01 | SAFE | SAFE | TN |
+| cookie-auth | remediated | ACL-02 | SAFE | SAFE | TN |
+| cookie-auth | vulnerable | SIG-01 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | SIG-02 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| cookie-auth | vulnerable | SEC-01 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | CLM-01 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | CLM-02 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | CLM-03 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | CLM-04 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | ACL-01 | VULNERABLE | VULNERABLE | TP |
+| cookie-auth | vulnerable | ACL-02 | VULNERABLE | VULNERABLE | TP |
+| header-auth | remediated | SIG-01 | SAFE | SAFE | TN |
+| header-auth | remediated | SIG-02 | SAFE | SAFE | TN |
+| header-auth | remediated | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| header-auth | remediated | SEC-01 | SAFE | SAFE | TN |
+| header-auth | remediated | CLM-01 | SAFE | SAFE | TN |
+| header-auth | remediated | CLM-02 | SAFE | SAFE | TN |
+| header-auth | remediated | CLM-03 | SAFE | SAFE | TN |
+| header-auth | remediated | CLM-04 | SAFE | SAFE | TN |
+| header-auth | remediated | ACL-01 | SAFE | SAFE | TN |
+| header-auth | remediated | ACL-02 | SAFE | SAFE | TN |
+| header-auth | vulnerable | SIG-01 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | SIG-02 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| header-auth | vulnerable | SEC-01 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | CLM-01 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | CLM-02 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | CLM-03 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | CLM-04 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | ACL-01 | VULNERABLE | VULNERABLE | TP |
+| header-auth | vulnerable | ACL-02 | VULNERABLE | VULNERABLE | TP |
+| rsa-auth | remediated | SIG-01 | SAFE | SAFE | TN |
+| rsa-auth | remediated | SIG-02 | SAFE | SAFE | TN |
+| rsa-auth | remediated | SIG-03 | SAFE | SAFE | TN |
+| rsa-auth | remediated | SEC-01 | SKIPPED | SKIPPED | SKIP |
+| rsa-auth | remediated | CLM-01 | SAFE | SAFE | TN |
+| rsa-auth | remediated | CLM-02 | SAFE | SAFE | TN |
+| rsa-auth | remediated | CLM-03 | SAFE | SAFE | TN |
+| rsa-auth | remediated | CLM-04 | SAFE | SAFE | TN |
+| rsa-auth | remediated | ACL-01 | SAFE | SAFE | TN |
+| rsa-auth | remediated | ACL-02 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | SIG-01 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | SIG-02 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | SIG-03 | VULNERABLE | VULNERABLE | TP |
+| rsa-auth | vulnerable | SEC-01 | SKIPPED | SKIPPED | SKIP |
+| rsa-auth | vulnerable | CLM-01 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | CLM-02 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | CLM-03 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | CLM-04 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | ACL-01 | SAFE | SAFE | TN |
+| rsa-auth | vulnerable | ACL-02 | VULNERABLE | VULNERABLE | TP |
+| timing-auth | remediated | SIG-01 | SAFE | SAFE | TN |
+| timing-auth | remediated | SIG-02 | SAFE | SAFE | TN |
+| timing-auth | remediated | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| timing-auth | remediated | SEC-01 | SAFE | SAFE | TN |
+| timing-auth | remediated | CLM-01 | SAFE | SAFE | TN |
+| timing-auth | remediated | CLM-02 | SAFE | SAFE | TN |
+| timing-auth | remediated | CLM-03 | SAFE | SAFE | TN |
+| timing-auth | remediated | CLM-04 | SAFE | SAFE | TN |
+| timing-auth | remediated | ACL-01 | SAFE | SAFE | TN |
+| timing-auth | remediated | ACL-02 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | SIG-01 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | SIG-02 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| timing-auth | vulnerable | SEC-01 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | CLM-01 | VULNERABLE | VULNERABLE | TP |
+| timing-auth | vulnerable | CLM-02 | VULNERABLE | VULNERABLE | TP |
+| timing-auth | vulnerable | CLM-03 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | CLM-04 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | ACL-01 | SAFE | SAFE | TN |
+| timing-auth | vulnerable | ACL-02 | SAFE | SAFE | TN |
+| trusting-auth | vulnerable | SIG-01 | SAFE | SAFE | TN |
+| trusting-auth | vulnerable | SIG-02 | SAFE | SAFE | TN |
+| trusting-auth | vulnerable | SIG-03 | SKIPPED | SKIPPED | SKIP |
+| trusting-auth | vulnerable | SEC-01 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | CLM-01 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | CLM-02 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | CLM-03 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | CLM-04 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | ACL-01 | VULNERABLE | VULNERABLE | TP |
+| trusting-auth | vulnerable | ACL-02 | VULNERABLE | VULNERABLE | TP |
+
+## Summary
+
+- TP 29  TN 52  FP 0  FN 0  SKIP 9
+- Precision: 1.00
+- Recall: 1.00
+- Sanity: all targets OK

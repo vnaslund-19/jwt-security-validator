@@ -7,10 +7,10 @@ __pycache__/
 *.md
 !README.md
 !DEV.md
+!evaluation/matrix.md
 *.db
 *.pem
 *.log
-evaluation/matrix.csv
 rockyou*.txt
 reports/
 build/
