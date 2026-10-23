@@ -51,13 +51,14 @@ def load_config(path):
         raise ValueError(f"config {path} is not valid JSON: {e}") from None
     _validate(raw)
     _check_paths(raw)
+    token_from = raw["login"]["token_from"]
     return Config(
-        name=raw["name"],
+        name=raw.get("name") or os.path.splitext(os.path.basename(path))[0],
         base_url=raw["base_url"].rstrip("/"),
         login_path=raw["login"]["path"],
         credentials=raw["login"]["credentials"],
-        token_from=raw["login"]["token_from"],
-        send_token=raw["send_token"],
+        token_from=token_from,
+        send_token=_send_token(raw, token_from),
         user_path=raw["endpoints"]["user"],
         admin_path=raw["endpoints"]["admin"],
         claims=raw["claims"],
@@ -65,6 +66,16 @@ def load_config(path):
         public_key=raw.get("public_key"),
         signing_key=raw.get("signing_key"),
     )
+
+
+def _send_token(raw, token_from):
+    # a token read from a cookie is sent back in that same cookie by default
+    send = raw.get("send_token")
+    if send is not None:
+        return send
+    if token_from["source"] == "cookie":
+        return {"via": "cookie", "name": token_from["name"]}
+    raise ValueError("send_token is required unless the token is read from a cookie")
 
 
 def _validate(raw):

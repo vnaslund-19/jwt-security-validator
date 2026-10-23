@@ -8,7 +8,6 @@
     "impersonate": { "username": "idswap", "password": "idswap123" },
     "token_from": { "source": "cookie", "name": "session" }
   },
-  "send_token": { "via": "cookie", "name": "session" },
   "endpoints": { "user": "/profile", "admin": "/staff" },
   "claims": { "subject": "uid", "role": "scope", "admin_value": "admin" }
 }

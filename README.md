@@ -41,23 +41,24 @@ that returns the token in the login JSON and expects it back in an
 }
 ```
 
-If the app carries the token in a cookie instead of a header, change the two
-transport fields:
+If the app uses a cookie instead, set `token_from` to that cookie and leave out
+`send_token`. The token is sent back in the same cookie:
 
 ```json
   "login": { "path": "/login", "credentials": { "...": "..." },
-             "token_from": { "source": "cookie", "name": "session" } },
-  "send_token": { "via": "cookie", "name": "session" }
+             "token_from": { "source": "cookie", "name": "session" } }
 ```
 
 Fields:
 
-- `name` identifies the target and names its report files.
+- `name` (optional) names the target and its report files. Defaults to the
+  config's filename.
 - `base_url` is where the app runs.
 - `login.token_from` says where the login response carries the token: a JSON
   `field`, or a `cookie` by `name`.
-- `send_token` says how to send it back: a header `name` with an optional
-  `prefix`, or a cookie by `name`.
+- `send_token` says how to send the token back: a header `name` with an optional
+  `prefix`, or a cookie by `name`. For a cookie you can omit it, and the token is
+  sent back in the cookie it came from.
 - `endpoints.user` is any authenticated endpoint; `endpoints.admin` is
   admin-only.
 - `claims` names the subject and role claims and the value that means admin.
