@@ -80,6 +80,10 @@ def whitebox_note(client, use_key=True):
     return WHITEBOX_NOTE if attack_uses_key(client, use_key) else ""
 
 
+def signer_available(client, use_key=True):
+    return _signer(client, use_key) is not None
+
+
 def _signer(client, use_key):
     signer = _blackbox_signer(client)
     if signer is None and use_key:

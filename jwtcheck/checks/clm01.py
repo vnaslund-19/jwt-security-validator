@@ -5,7 +5,7 @@ import time
 from ..findings import Finding, Verdict
 from ..http import to_evidence
 from ..tokens import decode_no_verify
-from ._common import forge_with_bad_claim, is_accepted, login_token, whitebox_note
+from ._common import forge_with_bad_claim, is_accepted, login_token, signer_available, whitebox_note
 
 CHECK_ID = "CLM-01"
 
@@ -28,7 +28,11 @@ def run(client):
     if replay is not None and is_accepted(replay):
         return _finding(Verdict.VULNERABLE, "The server accepted its own token after its exp had passed.", replay)
 
-    return _finding(Verdict.SAFE, "The server rejected an expired token.", replay or resp)
+    if signer_available(client) or replay is not None:
+        explanation = "The server rejected an expired token."
+    else:
+        explanation = "Rejected by the signature check; expiry was not tested. Set signing_key to test it."
+    return _finding(Verdict.SAFE, explanation, replay or resp)
 
 
 def _replay_after_expiry(client):
