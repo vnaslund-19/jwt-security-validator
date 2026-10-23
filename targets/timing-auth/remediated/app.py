@@ -1,7 +1,8 @@
 """timing-auth target, remediated variant.
 
-Same as the vulnerable variant but enforces exp, so an expired token is
-rejected. Tokens are short-lived to keep the expiry test fast.
+Same as the vulnerable variant but enforces exp and nbf, so a token past its exp
+or used before its nbf is rejected. Tokens expire a few seconds after login to
+keep the tests fast.
 """
 
 import os
@@ -18,7 +19,8 @@ from common import find_user, get_role, init_db  # noqa: E402
 
 SECRET = "c8b1f0d4e2a67593bd4471aa90fe23c7d5e8091a6f2b3c4d5e6f708192a3b4c5d"
 ALGORITHM = "HS256"
-TOKEN_TTL = timedelta(seconds=2)
+NBF_DELAY = timedelta(seconds=2)
+TOKEN_TTL = timedelta(seconds=5)
 DB_PATH = os.path.join(HERE, "users.db")
 
 
@@ -26,12 +28,13 @@ def read_token(auth_header):
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
     try:
-        # verifies the signature and enforces exp, so an expired token is rejected
+        # verifies the signature and enforces exp and nbf, so a token past its
+        # exp or used before its nbf is rejected
         return jwt.decode(
             auth_header.split(" ", 1)[1],
             SECRET,
             algorithms=[ALGORITHM],
-            options={"require": ["exp"]},
+            options={"require": ["exp", "nbf"]},
         )
     except jwt.InvalidTokenError:
         return None
@@ -48,7 +51,7 @@ def login():
         return jsonify({"error": "invalid credentials"}), 401
     username, _ = row
     now = datetime.now(timezone.utc)
-    payload = {"sub": username, "iat": now, "nbf": now, "exp": now + TOKEN_TTL}
+    payload = {"sub": username, "iat": now, "nbf": now + NBF_DELAY, "exp": now + TOKEN_TTL}
     token = jwt.encode(payload, SECRET, algorithm=ALGORITHM)
     return jsonify({"token": token})
 

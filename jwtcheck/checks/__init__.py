@@ -1,12 +1,16 @@
 """The ID -> callable registry. Each check exposes run(client) -> Finding."""
 
 import logging
+import time
 
 from ..findings import Finding, Verdict
+from ..tokens import decode_no_verify
 from . import acl01, acl02, clm01, clm02, clm03, clm04, sec01, sig01, sig02, sig03
 from ._common import is_accepted, login_token
 
 log = logging.getLogger("jwtcheck")
+
+MAX_NBF_WAIT = 10  # seconds; wait this long at most for a token with nbf in the future to become valid
 
 REGISTRY = {
     sig01.CHECK_ID: sig01.run,
@@ -59,6 +63,7 @@ def sanity_check(client):
     except Exception as exc:
         log.info("sanity=fail reason=login")
         return False, f"could not log in: {exc}"
+    _wait_until_nbf(token)
     try:
         valid_ok = is_accepted(client.get(client.config.user_path, token))
         bogus_ok = is_accepted(client.get(client.config.user_path, BOGUS_TOKEN))
@@ -73,3 +78,15 @@ def sanity_check(client):
         return False, "a bogus token was accepted"
     log.info("sanity=ok")
     return True, "ok"
+
+
+def _wait_until_nbf(token):
+    try:
+        nbf = decode_no_verify(token).get("nbf")
+    except Exception:
+        return
+    if not isinstance(nbf, (int, float)):
+        return
+    wait = nbf - int(time.time())
+    if 0 < wait <= MAX_NBF_WAIT:
+        time.sleep(wait + 1)

@@ -4,7 +4,7 @@
   "SIG-03": "SKIPPED",
   "SEC-01": "SAFE",
   "CLM-01": "VULNERABLE",
-  "CLM-02": "SAFE",
+  "CLM-02": "VULNERABLE",
   "CLM-03": "SAFE",
   "CLM-04": "SAFE",
   "ACL-01": "SAFE",

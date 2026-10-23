@@ -29,8 +29,9 @@ where relevant, a remediated variant over shared core. Their configs are in
 - **trusting-auth** (5005): verifies signatures but skips the claim checks, so
   one run shows a mix of SAFE and VULNERABLE.
 - **timing-auth** (5008 / 5009): a strong secret that can't be forged, but the
-  vulnerable variant ignores `exp`. CLM-01 catches it by replaying the app's own
-  short-lived token after it expires, not by forging one.
+  vulnerable variant ignores `exp` and `nbf`. CLM-01 and CLM-02 catch it by
+  replaying the app's own short-lived token after it expires and before its nbf,
+  not by forging one.
 
 Run one and point the tool at it:
 
