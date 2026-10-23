@@ -8,7 +8,7 @@ import sys
 from .checks import run_all, sanity_check
 from .config import load_config
 from .http import Client
-from .report import summarize, write_reports
+from .report import summarize, worst_first, write_reports
 
 log = logging.getLogger("jwtcheck")
 
@@ -68,7 +68,7 @@ def _run(args):
         print(f"error: target check failed ({reason})", file=sys.stderr)
         print("check that the app is running and base_url is correct.", file=sys.stderr)
         raise SystemExit(1)
-    findings = run_all(client)
+    findings = worst_first(run_all(client))
 
     # color only a real terminal, and stay plain when NO_COLOR is set or output is redirected
     color = sys.stdout.isatty() and "NO_COLOR" not in os.environ

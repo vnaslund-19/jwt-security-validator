@@ -12,6 +12,18 @@ _VERDICT_COLOR = {
     "ERROR": "\033[2m",        # dim
 }
 
+# for ordering output
+_VERDICT_RANK = {"VULNERABLE": 0, "ERROR": 1, "SAFE": 2, "SKIPPED": 3}
+_SEVERITY_RANK = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+
+
+def worst_first(findings):
+    """Order findings worst first: VULNERABLE before the rest, then by severity."""
+    return sorted(
+        findings,
+        key=lambda f: (_VERDICT_RANK.get(f.verdict.value, 9), _SEVERITY_RANK.get(f.severity, 9)),
+    )
+
 
 def summarize(findings, color=False):
     lines = []
