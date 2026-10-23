@@ -10,5 +10,6 @@
   },
   "send_token": { "via": "header", "name": "Authorization", "prefix": "Bearer " },
   "endpoints": { "user": "/me", "admin": "/admin" },
-  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" }
+  "claims": { "subject": "sub", "role": "role", "admin_value": "admin" },
+  "signing_key": "targets/header-auth/remediated/signing.key"
 }

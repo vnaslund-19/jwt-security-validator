@@ -63,6 +63,7 @@
       }
     },
     "wordlist": { "type": "string" },
-    "public_key": { "type": "string" }
+    "public_key": { "type": "string" },
+    "signing_key": { "type": "string" }
   }
 }

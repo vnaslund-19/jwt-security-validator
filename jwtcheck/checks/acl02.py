@@ -20,7 +20,10 @@ def run(client):
     # whether the token was accepted (the explanation says which).
     echoes_identity = str(original) in client.get(cfg.user_path, token).text
 
-    forged = forge_with_bad_claim(client, {sub_claim: target})
+    # don't use the signing key here: with the key you could make a token for any
+    # user, so the swap would always succeed and prove nothing. test only what an
+    # outsider without the key could do.
+    forged = forge_with_bad_claim(client, {sub_claim: target}, use_key=False)
     resp = client.get(cfg.user_path, forged)
     accepted = is_accepted(resp)
     confirmed = accepted and echoes_identity and str(target) in resp.text

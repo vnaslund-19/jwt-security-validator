@@ -49,16 +49,20 @@ def _read_wordlist(path):
                 yield secret
 
 
-def forge_with_bad_claim(client, changes):
+WHITEBOX_NOTE = " White-box: shown using the signing key from the config."
+
+
+def forge_with_bad_claim(client, changes, use_key=True):
     """Build an attack token that differs from a real one by `changes`.
 
     When the tool can make a signature the server accepts (a cracked secret, RSA
-    confusion, or accepted alg:none), sign a fresh token so only the claim is
-    wrong. Otherwise tamper a real token and leave its old signature, which a
-    server that verifies signatures will reject.
+    confusion, accepted alg:none, or the signing key from the config when
+    `use_key`), sign a fresh token so only the claim is wrong. Otherwise tamper a
+    real token and leave its old signature, which a server that verifies
+    signatures will reject.
     """
     token = login_token(client)
-    signer = _attack_signer(client)
+    signer = _signer(client, use_key)
     if signer is not None:
         claims = decode_no_verify(token)
         claims.update(changes)
@@ -66,17 +70,42 @@ def forge_with_bad_claim(client, changes):
     return tamper_claims(token, changes)
 
 
-def _attack_signer(client):
-    """A signer the server accepts, resolved once per client, or None."""
-    cached = getattr(client, "_attack_signer", _UNSET)
-    if cached is not _UNSET:
-        return cached
-    signer = _resolve_signer(client)
-    client._attack_signer = signer
+def attack_uses_key(client, use_key=True):
+    # true when the only way to sign a token is the key from the config, so the
+    # finding only holds for someone who has that key, not an outsider
+    return _blackbox_signer(client) is None and use_key and _key_signer(client) is not None
+
+
+def whitebox_note(client, use_key=True):
+    return WHITEBOX_NOTE if attack_uses_key(client, use_key) else ""
+
+
+def _signer(client, use_key):
+    signer = _blackbox_signer(client)
+    if signer is None and use_key:
+        signer = _key_signer(client)
     return signer
 
 
-def _resolve_signer(client):
+def _blackbox_signer(client):
+    cached = getattr(client, "_bb_signer", _UNSET)
+    if cached is not _UNSET:
+        return cached
+    signer = _resolve_blackbox_signer(client)
+    client._bb_signer = signer
+    return signer
+
+
+def _key_signer(client):
+    cached = getattr(client, "_key_signer", _UNSET)
+    if cached is not _UNSET:
+        return cached
+    signer = _resolve_key_signer(client)
+    client._key_signer = signer
+    return signer
+
+
+def _resolve_blackbox_signer(client):
     cfg = client.config
     token, _ = client.login()
     if not token:
@@ -102,6 +131,28 @@ def _resolve_signer(client):
         return forge_alg_none
 
     log.info("signing path=none")
+    return None
+
+
+def _resolve_key_signer(client):
+    cfg = client.config
+    if not cfg.signing_key:
+        return None
+    token, _ = client.login()
+    if not token:
+        return None
+    alg = get_header_alg(token) or ""
+    with open(cfg.signing_key, "rb") as f:
+        key = f.read()
+    if alg.startswith("HS"):
+        key = key.strip()
+
+    def signer(claims):
+        return resign(claims, key, alg)
+
+    if _server_accepts(client, signer(decode_no_verify(token))):
+        log.info("signing path=config-key")
+        return signer
     return None
 
 

@@ -2,7 +2,7 @@
 
 from ..findings import Finding, Verdict
 from ..http import to_evidence
-from ._common import forge_with_bad_claim, is_accepted
+from ._common import forge_with_bad_claim, is_accepted, whitebox_note
 
 CHECK_ID = "CLM-04"
 
@@ -17,7 +17,7 @@ def run(client):
         severity="medium",
         title="Audience not validated (aud)",
         explanation=(
-            "The server accepted a token with an unexpected aud value."
+            "The server accepted a token with an unexpected aud value." + whitebox_note(client)
             if vulnerable
             else "The server rejected a token with a wrong audience."
         ),

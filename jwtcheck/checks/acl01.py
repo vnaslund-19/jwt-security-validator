@@ -2,7 +2,7 @@
 
 from ..findings import Finding, Verdict
 from ..http import to_evidence
-from ._common import forge_with_bad_claim, is_accepted
+from ._common import forge_with_bad_claim, is_accepted, whitebox_note
 
 CHECK_ID = "ACL-01"
 
@@ -21,6 +21,7 @@ def run(client):
         title="Role escalation via role claim",
         explanation=(
             f"A token with the {role_claim} claim set to '{admin_value}' reached the admin endpoint."
+            + whitebox_note(client)
             if vulnerable
             else "The server did not grant admin access from the role claim."
         ),

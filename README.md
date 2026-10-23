@@ -68,6 +68,12 @@ Fields:
 - `wordlist` (optional) is a path to the wordlist for the weak-secret brute
   force (SEC-01), defaulting to a small built-in list.
 - `public_key` (optional) is a path to the RSA public key, used by SIG-03.
+- `signing_key` (optional) is a path to a file holding the app's signing secret,
+  or its private key. With it, the claim and role checks run white-box: the tool
+  signs its own token carrying a bad claim and sees whether the app accepts it,
+  so it can test claims an outsider could never forge a token for (a wrong `iss`
+  or `aud`, an ignored `exp`). Findings that relied on it are marked white-box in
+  their explanation.
 
 The full contract is [jwtcheck/config-schema.json](jwtcheck/config-schema.json).
 Add a `"$schema"` key pointing at it to get editor validation while you write
