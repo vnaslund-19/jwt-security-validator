@@ -1,6 +1,7 @@
 """Small helpers shared by the checks."""
 
 import logging
+from datetime import datetime, timezone
 
 from ..tokens import (
     brute_force_secret,
@@ -82,6 +83,10 @@ def whitebox_note(client, use_key=True):
 
 def signer_available(client, use_key=True):
     return _signer(client, use_key) is not None
+
+
+def utc_time(ts):
+    return datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
 def _signer(client, use_key):

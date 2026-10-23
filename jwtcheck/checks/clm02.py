@@ -5,7 +5,7 @@ import time
 from ..findings import Finding, Verdict
 from ..http import to_evidence
 from ..tokens import decode_no_verify
-from ._common import forge_with_bad_claim, is_accepted, login_token, signer_available, whitebox_note
+from ._common import forge_with_bad_claim, is_accepted, login_token, signer_available, utc_time, whitebox_note
 
 CHECK_ID = "CLM-02"
 
@@ -14,17 +14,23 @@ def run(client):
     cfg = client.config
 
     # forge a token with nbf in the future when a signature can be made.
-    forged = forge_with_bad_claim(client, {"nbf": int(time.time()) + 3600})
+    now = int(time.time())
+    future = now + 3600
+    forged = forge_with_bad_claim(client, {"nbf": future})
     resp = client.get(cfg.user_path, forged)
     if is_accepted(resp):
-        explanation = "The server accepted a token whose nbf is in the future." + whitebox_note(client)
+        explanation = (
+            f"The server accepted a token not valid until {utc_time(future)} (now {utc_time(now)})."
+            + whitebox_note(client)
+        )
         return _finding(Verdict.VULNERABLE, explanation, resp)
 
     # a server that signs properly can't be attacked by forging, but if it issues
     # a token with nbf in the future the real token can be replayed before then.
-    replay = _replay_before_nbf(client)
+    replay, nbf = _replay_before_nbf(client)
     if replay is not None and is_accepted(replay):
-        return _finding(Verdict.VULNERABLE, "The server accepted its own token before its nbf time.", replay)
+        explanation = f"The server accepted a token not valid until {utc_time(nbf)} (now {utc_time(int(time.time()))})."
+        return _finding(Verdict.VULNERABLE, explanation, replay)
 
     if signer_available(client) or replay is not None:
         explanation = "The server rejected a token used before its nbf time."
@@ -37,8 +43,8 @@ def _replay_before_nbf(client):
     token = login_token(client)
     nbf = decode_no_verify(token).get("nbf")
     if nbf is None or nbf <= int(time.time()):
-        return None
-    return client.get(client.config.user_path, token)
+        return None, None
+    return client.get(client.config.user_path, token), nbf
 
 
 def _finding(verdict, explanation, resp):
