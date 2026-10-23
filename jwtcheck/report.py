@@ -25,6 +25,21 @@ def worst_first(findings):
     )
 
 
+def overview(findings):
+    """One line for the whole run: how many vulnerabilities, and the worst severity."""
+    vulns = [f for f in findings if f.verdict.value == "VULNERABLE"]
+    if vulns:
+        worst = min(vulns, key=lambda f: _SEVERITY_RANK.get(f.severity, 9)).severity
+        noun = "vulnerability" if len(vulns) == 1 else "vulnerabilities"
+        line = f"{len(vulns)} {noun} found, highest severity {worst}."
+    else:
+        line = "No vulnerabilities found."
+    errors = sum(1 for f in findings if f.verdict.value == "ERROR")
+    if errors:
+        line += f" {errors} check{'' if errors == 1 else 's'} could not run."
+    return line
+
+
 def summarize(findings, color=False):
     lines = []
     for f in findings:
@@ -59,6 +74,7 @@ def _as_dict(config, findings, reliable, reason):
         "target": config.name,
         "reliable": reliable,
         "reason": reason,
+        "summary": overview(findings),
         "findings": [_finding_dict(f) for f in findings],
     }
 
@@ -81,6 +97,7 @@ def _as_markdown(data):
     lines = [f"# jwtcheck report: {data['target']}", ""]
     if not data["reliable"]:
         lines += [f"> Results may be unreliable: {data['reason']}", ""]
+    lines += [data["summary"], ""]
     for f in data["findings"]:
         lines += [
             f"## {f['check_id']} {f['title']} [{f['verdict']}]",

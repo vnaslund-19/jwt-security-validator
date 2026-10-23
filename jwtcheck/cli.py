@@ -8,7 +8,7 @@ import sys
 from .checks import run_all, sanity_check
 from .config import load_config
 from .http import Client
-from .report import summarize, worst_first, write_reports
+from .report import overview, summarize, worst_first, write_reports
 
 log = logging.getLogger("jwtcheck")
 
@@ -73,6 +73,7 @@ def _run(args):
     # color only a real terminal, and stay plain when NO_COLOR is set or output is redirected
     color = sys.stdout.isatty() and "NO_COLOR" not in os.environ
     print(f"target: {config.name}")
+    print(overview(findings))
     print(summarize(findings, color=color))
 
     if args.report_dir:
