@@ -37,7 +37,7 @@ Run one and point the tool at it:
 
 ```sh
 python targets/header-auth/vulnerable/app.py &
-jwtcheck --config configs/header-auth-vulnerable.json
+jwtcheck configs/header-auth-vulnerable.json
 kill %1
 ```
 

@@ -111,7 +111,7 @@ head -n 100000 rockyou.txt > rockyou-top100k.txt
 ## Run
 
 ```sh
-jwtcheck --config config.json
+jwtcheck config.json
 ```
 
 The summary prints a verdict for each check to stdout. Verdicts are colored on a

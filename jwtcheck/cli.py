@@ -15,7 +15,7 @@ log = logging.getLogger("jwtcheck")
 
 def main():
     parser = argparse.ArgumentParser(prog="jwtcheck")
-    parser.add_argument("--config", required=True, help="path to a target config JSON")
+    parser.add_argument("config", help="path to a target config JSON")
     parser.add_argument(
         "--log-level",
         default="warning",
