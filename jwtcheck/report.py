@@ -55,10 +55,13 @@ def summarize(findings, color=False):
     return "\n".join(lines)
 
 
-def write_reports(out_dir, config, findings, reliable, reason):
+REDACTED = "<redacted>"
+
+
+def write_reports(out_dir, config, findings, reliable, reason, redact=True):
     """Write <name>.json and <name>.md into out_dir. Returns the two paths."""
     os.makedirs(out_dir, exist_ok=True)
-    data = _as_dict(config, findings, reliable, reason)
+    data = _as_dict(config, findings, reliable, reason, redact)
     json_path = os.path.join(out_dir, config.name + ".json")
     md_path = os.path.join(out_dir, config.name + ".md")
     with open(json_path, "w", encoding="utf-8") as f:
@@ -69,28 +72,40 @@ def write_reports(out_dir, config, findings, reliable, reason):
     return json_path, md_path
 
 
-def _as_dict(config, findings, reliable, reason):
+def _as_dict(config, findings, reliable, reason, redact):
+    sensitive = {"authorization", "cookie", config.send_token["name"].lower()}
     return {
         "target": config.name,
         "reliable": reliable,
         "reason": reason,
         "summary": overview(findings),
-        "findings": [_finding_dict(f) for f in findings],
+        "findings": [_finding_dict(f, redact, sensitive) for f in findings],
     }
 
 
-def _finding_dict(f):
+def _finding_dict(f, redact, sensitive):
     # remediation only makes sense when there is a real finding to fix
     vulnerable = f.verdict == f.verdict.VULNERABLE
-    return {
+    d = {
         "check_id": f.check_id,
         "verdict": f.verdict.value,
         "severity": f.severity,
         "title": f.title,
         "explanation": f.explanation,
         "remediation": f.remediation if vulnerable else None,
-        "evidence": f.evidence,
+        "evidence": _redact_evidence(f.evidence, sensitive) if redact else f.evidence,
     }
+    if f.secret is not None:
+        d["secret"] = REDACTED if redact else f.secret
+    return d
+
+
+def _redact_evidence(evidence, sensitive):
+    if not evidence:
+        return evidence
+    req = evidence["request"]
+    headers = {k: (REDACTED if k.lower() in sensitive else v) for k, v in req["headers"].items()}
+    return {"request": {**req, "headers": headers}, "response": evidence["response"]}
 
 
 def _as_markdown(data):
@@ -107,6 +122,8 @@ def _as_markdown(data):
         ]
         if f["remediation"]:
             lines.append(f"- Remediation: {f['remediation']}")
+        if f.get("secret") is not None:
+            lines.append(f"- Cracked secret: {f['secret']}")
         lines.append("")
         if f["evidence"]:
             lines += _evidence_block(f["evidence"])

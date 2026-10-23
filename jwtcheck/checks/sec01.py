@@ -43,8 +43,8 @@ def run(client):
     escalated = is_accepted(admin_resp)
 
     explanation = (
-        f"The signing secret '{secret}' was recovered from the wordlist, so any token can be "
-        f"forged; a token re-signed with it was accepted at {cfg.user_path}. "
+        "The signing secret was cracked from the wordlist, so any token can be forged; "
+        f"a token re-signed with it was accepted at {cfg.user_path}. "
     )
     if escalated:
         explanation += (
@@ -58,10 +58,10 @@ def run(client):
         )
 
     evidence = to_evidence(admin_resp if escalated else forge_resp)
-    return _finding(Verdict.VULNERABLE, explanation, evidence)
+    return _finding(Verdict.VULNERABLE, explanation, evidence, secret=secret)
 
 
-def _finding(verdict, explanation, evidence):
+def _finding(verdict, explanation, evidence, secret=None):
     return Finding(
         check_id=CHECK_ID,
         verdict=verdict,
@@ -70,4 +70,5 @@ def _finding(verdict, explanation, evidence):
         explanation=explanation,
         remediation="Use a long, random HMAC secret.",
         evidence=evidence,
+        secret=secret,
     )

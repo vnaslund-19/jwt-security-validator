@@ -121,15 +121,13 @@ Flags:
 
 - `--report-dir DIR` writes a JSON and a Markdown report for the run into `DIR`,
   each finding carrying the request/response that proves it.
+- `--no-redact` writes the tokens and any cracked secret into the report in full
+  (redacted by default). The report could then contain live credentials,
+  so keep it private.
 - `--log-level {debug,info,warning,error}` controls logging (default `warning`,
   so it stays quiet). `info` shows the signing path the tool found; `debug`
   shows every request.
 - `--log-file PATH` sends logs to a file instead of stderr.
-
-A saved report contains live credentials: it records the tokens the checks send,
-and the signing secret if SEC-01 cracks one. Anyone who has the file could use
-them to log in to the app you tested, so keep the reports private and out of
-version control.
 
 ## What it checks
 

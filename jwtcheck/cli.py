@@ -30,6 +30,12 @@ def main():
         "--report-dir",
         help="write a JSON and a Markdown report for this run into this directory",
     )
+    parser.add_argument(
+        "--redact",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="mask tokens and any cracked secret in the report; --no-redact writes them in full",
+    )
     args = parser.parse_args()
 
     try:
@@ -78,7 +84,7 @@ def _run(args):
 
     if args.report_dir:
         try:
-            json_path, md_path = write_reports(args.report_dir, config, findings, ok, reason)
+            json_path, md_path = write_reports(args.report_dir, config, findings, ok, reason, redact=args.redact)
         except OSError as e:
             print(f"error: could not write reports to {args.report_dir}: {e.strerror or e}", file=sys.stderr)
             raise SystemExit(2) from None

@@ -23,3 +23,4 @@ class Finding:
     explanation: str
     remediation: str
     evidence: Optional[dict] = None  # request/response proving a VULNERABLE result
+    secret: Optional[str] = None     # a recovered secret (SEC-01)
