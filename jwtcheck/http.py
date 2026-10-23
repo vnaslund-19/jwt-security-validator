@@ -8,8 +8,9 @@ log = logging.getLogger("jwtcheck")
 
 
 class Client:
-    def __init__(self, config):
+    def __init__(self, config, wordlist=None):
         self.config = config
+        self.wordlist = wordlist
         self.session = requests.Session()
 
     def login(self, credentials=None):

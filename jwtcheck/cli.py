@@ -31,6 +31,10 @@ def main():
         help="write a JSON and a Markdown report for this run into this directory",
     )
     parser.add_argument(
+        "--wordlist",
+        help="path to a wordlist for the SEC-01 brute force (default: a small built-in list)",
+    )
+    parser.add_argument(
         "--redact",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -68,7 +72,11 @@ def _run(args):
         print(f"error: {e}", file=sys.stderr)
         raise SystemExit(2) from None
 
-    client = Client(config)
+    if args.wordlist and not os.path.isfile(args.wordlist):
+        print(f"error: wordlist file not found: {args.wordlist}", file=sys.stderr)
+        raise SystemExit(2)
+
+    client = Client(config, wordlist=args.wordlist)
     ok, reason = sanity_check(client)
     if not ok:
         print(f"error: target check failed ({reason})", file=sys.stderr)

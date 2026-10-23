@@ -24,7 +24,7 @@ def run(client):
             evidence=None,
         )
 
-    secret = brute_force_secret(token, load_wordlist(cfg), alg)
+    secret = brute_force_secret(token, load_wordlist(client.wordlist), alg)
     if secret is None:
         return _finding(Verdict.SAFE, "The signing secret was not found in the wordlist.", evidence=None)
     log.info("SEC-01 cracked secret=%r", secret)

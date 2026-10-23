@@ -65,8 +65,6 @@ Fields:
   identity-swap check (ACL-02) logs in as it, then forges a token claiming to be
   that user. Without it the check uses an invented username, which would be
   rejected by an app that checks whether the user exists.
-- `wordlist` (optional) is a path to the wordlist for the weak-secret brute
-  force (SEC-01), defaulting to a small built-in list.
 - `public_key` (optional) is a path to the RSA public key, used by SIG-03.
 - `signing_key` (optional) is a path to a file holding the app's signing secret,
   or its private key. With it, the claim and role checks run white-box: the tool
@@ -86,17 +84,12 @@ secret is guessable and anyone can forge valid tokens, so the finding is
 `VULNERABLE` with the forged request as proof.
 
 The built-in list is only a dozen of the most common secrets. For a realistic
-test, point `wordlist` at a full list. The usual choice is `rockyou.txt`:
+test, pass a full list with `--wordlist`. The usual choice is `rockyou.txt`:
 
 ```sh
 curl -L -o rockyou.txt \
   https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
-```
-
-Then set the path in the config:
-
-```json
-"wordlist": "rockyou.txt"
+jwtcheck config.json --wordlist rockyou.txt
 ```
 
 rockyou has about 14 million entries, so a secret near the bottom is a full scan
@@ -121,6 +114,8 @@ Flags:
 
 - `--report-dir DIR` writes a JSON and a Markdown report for the run into `DIR`,
   each finding carrying the request/response that proves it.
+- `--wordlist PATH` uses this wordlist for the SEC-01 brute force instead of the
+  small built-in list.
 - `--no-redact` writes the tokens and any cracked secret into the report in full
   (redacted by default). The report could then contain live credentials,
   so keep it private.

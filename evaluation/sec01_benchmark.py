@@ -39,13 +39,6 @@ COMMON = ["123456", "password", "trustno1"]  # well-known secrets near the top o
 _CLEAN = re.compile(r"^[A-Za-z0-9]{6,}$")     # printable, so it reads clearly in the report
 
 
-class _Cfg:
-    """Minimal stand-in for a Config: load_wordlist only reads .wordlist."""
-
-    def __init__(self, path):
-        self.wordlist = path
-
-
 def _token(secret):
     return resign({"sub": "benchmark"}, secret, ALGORITHM)
 
@@ -78,7 +71,7 @@ def run(path):
     # read the whole wordlist in. the benchmark needs the positions
     # and then scans the same words twice
     t0 = time.perf_counter()
-    words = list(load_wordlist(_Cfg(path)))
+    words = list(load_wordlist(path))
     load_secs = time.perf_counter() - t0
     count = len(words)
 

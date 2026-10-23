@@ -37,7 +37,6 @@ class Config:
     admin_path: str
     claims: dict          # names of the subject and role claims, plus the admin value
     impersonate: dict | None = None  # optional second real account, for the ACL-02 swap
-    wordlist: str | None = None      # optional path for the brute-force passwd list
     public_key: str | None = None    # optional path to the RSA public key, for SIG-03
     signing_key: str | None = None   # optional path to the app's signing key, for white-box claim tests
 
@@ -63,7 +62,6 @@ def load_config(path):
         admin_path=raw["endpoints"]["admin"],
         claims=raw["claims"],
         impersonate=raw["login"].get("impersonate"),
-        wordlist=raw.get("wordlist"),
         public_key=raw.get("public_key"),
         signing_key=raw.get("signing_key"),
     )
@@ -79,7 +77,7 @@ def _validate(raw):
 
 def _check_paths(raw):
     # fail early with a clear message if an optional file path is wrong
-    for key in ("wordlist", "public_key", "signing_key"):
+    for key in ("public_key", "signing_key"):
         path = raw.get(key)
         if path is not None and not os.path.isfile(path):
             raise ValueError(f"{key} file not found: {path}")

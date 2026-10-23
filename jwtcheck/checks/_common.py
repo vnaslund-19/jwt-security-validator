@@ -34,12 +34,12 @@ def is_accepted(resp):
     return 200 <= resp.status_code < 300
 
 
-def load_wordlist(cfg):
-    # read a configured wordlist one line at a time so a large
-    # file never sits in memory. the built-in list is the default.
-    if not cfg.wordlist:
+def load_wordlist(path):
+    # read the wordlist one line at a time so a large file never sits in memory;
+    # the built-in list is the default
+    if not path:
         return WEAK_SECRETS
-    return _read_wordlist(cfg.wordlist)
+    return _read_wordlist(path)
 
 
 def _read_wordlist(path):
@@ -123,7 +123,7 @@ def _resolve_blackbox_signer(client):
     claims = decode_no_verify(token)
 
     if alg.startswith("HS"):
-        secret = brute_force_secret(token, load_wordlist(cfg), alg)
+        secret = brute_force_secret(token, load_wordlist(client.wordlist), alg)
         if secret:
             log.info("signing path=weak-secret")
             return lambda c: resign(c, secret, alg)
