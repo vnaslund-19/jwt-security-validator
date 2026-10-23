@@ -8,7 +8,7 @@ from ._common import is_accepted, login_token
 CHECK_ID = "SIG-03"
 ASYMMETRIC = ("RS", "ES", "PS")
 TITLE = "Algorithm confusion (RS256 to HS256)"
-FIX = "Pin the expected algorithm so a public key cannot be used as an HMAC secret."
+FIX = "Verify against the expected algorithm(s) so a public key cannot be used as an HMAC secret."
 
 
 def run(client):

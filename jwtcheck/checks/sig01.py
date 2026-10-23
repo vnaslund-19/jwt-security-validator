@@ -25,6 +25,6 @@ def run(client):
             if vulnerable
             else "The server rejected an unsigned alg:none token."
         ),
-        remediation="Pin the expected algorithm and reject alg:none tokens.",
+        remediation="Verify against the expected algorithm(s) and reject alg:none.",
         evidence=to_evidence(resp),
     )
