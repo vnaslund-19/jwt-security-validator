@@ -3,15 +3,19 @@
 import logging
 
 import requests
+import urllib3
 
 log = logging.getLogger("jwtcheck")
 
 
 class Client:
-    def __init__(self, config, wordlist=None):
+    def __init__(self, config, wordlist=None, verify=True):
         self.config = config
         self.wordlist = wordlist
         self.session = requests.Session()
+        self.session.verify = verify
+        if not verify:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def login(self, credentials=None):
         cfg = self.config

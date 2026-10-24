@@ -120,6 +120,7 @@ Flags:
 - `--no-redact` writes the tokens and any cracked secret into the report in full
   (redacted by default). The report could then contain live credentials,
   so keep it private.
+- `--insecure` skips TLS certificate verification, for local or self-signed targets.
 - `--log-level {debug,info,warning,error}` controls logging (default `warning`,
   so it stays quiet). `info` shows the signing path the tool found; `debug`
   shows every request.

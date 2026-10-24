@@ -3,6 +3,8 @@
 import logging
 import time
 
+import requests
+
 from ..findings import Finding, Verdict
 from ..tokens import decode_no_verify
 from . import acl01, acl02, clm01, clm02, clm03, clm04, sec01, sig01, sig02, sig03
@@ -60,6 +62,8 @@ def sanity_check(client):
     """
     try:
         token = login_token(client)
+    except requests.exceptions.SSLError:
+        raise
     except Exception as exc:
         log.info("sanity=fail reason=login")
         return False, f"could not log in: {exc}"
@@ -67,6 +71,8 @@ def sanity_check(client):
     try:
         valid_ok = is_accepted(client.get(client.config.user_path, token))
         bogus_ok = is_accepted(client.get(client.config.user_path, BOGUS_TOKEN))
+    except requests.exceptions.SSLError:
+        raise
     except Exception as exc:
         log.info("sanity=fail reason=request")
         return False, f"could not reach the target: {exc}"

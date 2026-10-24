@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+import requests
+
 from .checks import run_all, sanity_check
 from .config import load_config
 from .http import Client
@@ -40,10 +42,18 @@ def main():
         default=True,
         help="mask tokens and any cracked secret in the report; --no-redact writes them in full",
     )
+    parser.add_argument(
+        "--insecure",
+        action="store_true",
+        help="skip TLS certificate verification (for local or self-signed targets)",
+    )
     args = parser.parse_args()
 
     try:
         _run(args)
+    except requests.exceptions.SSLError:
+        print("error: TLS certificate verification failed; re-run with --insecure to skip it", file=sys.stderr)
+        raise SystemExit(1) from None
     except Exception as e:
         # last resort: a user should never see a raw traceback
         log.debug("unexpected error", exc_info=True)
@@ -76,7 +86,7 @@ def _run(args):
         print(f"error: wordlist file not found: {args.wordlist}", file=sys.stderr)
         raise SystemExit(2)
 
-    client = Client(config, wordlist=args.wordlist)
+    client = Client(config, wordlist=args.wordlist, verify=not args.insecure)
     ok, reason = sanity_check(client)
     if not ok:
         print(f"error: target check failed ({reason})", file=sys.stderr)
