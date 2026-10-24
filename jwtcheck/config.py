@@ -34,8 +34,8 @@ class Config:
     token_from: dict      # how the login response carries the token
     send_token: dict      # how to send a token on a protected request
     user_path: str
-    admin_path: str
     claims: dict          # names of the subject and role claims, plus the admin value
+    admin_path: str | None = None    # optional admin-only endpoint, for ACL-01
     impersonate: dict | None = None  # optional second real account, for the ACL-02 swap
     public_key: str | None = None    # optional path to the RSA public key, for SIG-03
     signing_key: str | None = None   # optional path to the app's signing key, for white-box claim tests
@@ -60,7 +60,7 @@ def load_config(path):
         token_from=token_from,
         send_token=_send_token(raw, token_from),
         user_path=raw["endpoints"]["user"],
-        admin_path=raw["endpoints"]["admin"],
+        admin_path=raw["endpoints"].get("admin"),
         claims=raw["claims"],
         impersonate=raw["login"].get("impersonate"),
         public_key=raw.get("public_key"),

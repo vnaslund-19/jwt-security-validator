@@ -45,7 +45,7 @@
     },
     "endpoints": {
       "type": "object",
-      "required": ["user", "admin"],
+      "required": ["user"],
       "additionalProperties": false,
       "properties": {
         "user": { "type": "string" },
@@ -54,7 +54,7 @@
     },
     "claims": {
       "type": "object",
-      "required": ["subject", "role", "admin_value"],
+      "required": ["subject"],
       "additionalProperties": false,
       "properties": {
         "subject": { "type": "string" },

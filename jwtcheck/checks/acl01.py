@@ -2,15 +2,28 @@
 
 from ..findings import Finding, Verdict
 from ..http import to_evidence
-from ._common import forge_with_bad_claim, is_accepted, signer_available, whitebox_note
+from ._common import forge_with_bad_claim, is_accepted, login_token, signer_available, whitebox_note
 
 CHECK_ID = "ACL-01"
 
 
 def run(client):
     cfg = client.config
-    role_claim = cfg.claims["role"]
-    admin_value = cfg.claims["admin_value"]
+    role_claim = cfg.claims.get("role")
+    admin_value = cfg.claims.get("admin_value")
+    if not (cfg.admin_path and role_claim and admin_value):
+        return _skipped("No admin endpoint and role claim configured, so role escalation was not tested.")
+
+    # a forged role only proves escalation if the admin endpoint denies a normal
+    # user to begin with. If it lets one in, there is no privilege boundary.
+    baseline = client.get(cfg.admin_path, login_token(client))
+    if is_accepted(baseline):
+        return _skipped(
+            f"The admin endpoint {cfg.admin_path} accepts a normal user, so there is no privilege "
+            "boundary to test. Point endpoints.admin at an admin-only endpoint.",
+            evidence=to_evidence(baseline),
+        )
+
     forged = forge_with_bad_claim(client, {role_claim: admin_value})
     resp = client.get(cfg.admin_path, forged)
     vulnerable = is_accepted(resp)
@@ -31,4 +44,16 @@ def run(client):
         explanation=explanation,
         remediation="Look up the user's role server-side; never trust the role claim.",
         evidence=to_evidence(resp),
+    )
+
+
+def _skipped(explanation, evidence=None):
+    return Finding(
+        check_id=CHECK_ID,
+        verdict=Verdict.SKIPPED,
+        severity="critical",
+        title="Role escalation via role claim",
+        explanation=explanation,
+        remediation="",
+        evidence=evidence,
     )

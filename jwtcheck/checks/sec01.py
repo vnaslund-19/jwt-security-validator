@@ -36,28 +36,26 @@ def run(client):
     forged = resign({**claims, "jwtcheck_forged": True}, secret, alg)
     forge_resp = client.get(cfg.user_path, forged)
 
-    # Admin escalation is extra evidence: it fails when roles are enforced
-    # server-side, which does not make the secret any less broken.
-    admin_claims = {**claims, cfg.claims["role"]: cfg.claims["admin_value"]}
-    admin_resp = client.get(cfg.admin_path, resign(admin_claims, secret, alg))
-    escalated = is_accepted(admin_resp)
-
     explanation = (
         "The signing secret was cracked from the wordlist, so any token can be forged; "
         f"a token re-signed with it was accepted at {cfg.user_path}. "
     )
-    if escalated:
-        explanation += (
-            f"Escalating '{cfg.claims['role']}' to '{cfg.claims['admin_value']}' also reached "
-            f"the admin-only {cfg.admin_path}."
-        )
-    else:
-        explanation += (
-            f"Escalating '{cfg.claims['role']}' to '{cfg.claims['admin_value']}' did not reach "
-            f"{cfg.admin_path} (roles are likely enforced server-side), but the secret is still broken."
-        )
+    evidence = to_evidence(forge_resp)
 
-    evidence = to_evidence(admin_resp if escalated else forge_resp)
+    # Admin escalation is extra evidence: it fails when roles are enforced
+    # server-side, which does not make the secret any less broken.
+    role = cfg.claims.get("role")
+    admin_value = cfg.claims.get("admin_value")
+    if cfg.admin_path and role and admin_value:
+        admin_resp = client.get(cfg.admin_path, resign({**claims, role: admin_value}, secret, alg))
+        if is_accepted(admin_resp):
+            explanation += f"Escalating '{role}' to '{admin_value}' also reached the admin-only {cfg.admin_path}."
+            evidence = to_evidence(admin_resp)
+        else:
+            explanation += (
+                f"Escalating '{role}' to '{admin_value}' did not reach {cfg.admin_path} "
+                "(roles are likely enforced server-side), but the secret is still broken."
+            )
     return _finding(Verdict.VULNERABLE, explanation, evidence, secret=secret)
 
 

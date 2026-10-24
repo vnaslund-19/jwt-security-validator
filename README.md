@@ -59,9 +59,13 @@ Fields:
 - `send_token` says how to send the token back: a header `name` with an optional
   `prefix`, or a cookie by `name`. For a cookie you can omit it, and the token is
   sent back in the cookie it came from.
-- `endpoints.user` is any authenticated endpoint; `endpoints.admin` is
-  admin-only.
-- `claims` names the subject and role claims and the value that means admin.
+- `endpoints.user` is any endpoint that needs a login. `endpoints.admin` is an
+  admin-only endpoint, used by the role-escalation check (ACL-01). It is
+  optional: ACL-01 skips when it is not set, or when a normal user can already
+  reach it.
+- `claims.subject` is the name of the claim that holds the user's identity.
+  `claims.role` and `claims.admin_value` are optional and used only by ACL-01:
+  the name of the role claim, and the value in it that means admin.
 - `login.impersonate` (optional) is a second real account on the target. The
   identity-swap check (ACL-02) logs in as it, then forges a token claiming to be
   that user. Without it the check uses an invented username, which would be
