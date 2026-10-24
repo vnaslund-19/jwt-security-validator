@@ -25,11 +25,13 @@ class Client:
     def get(self, path, token):
         cfg = self.config
         send = cfg.send_token
+        # the token under test must be the only credential, so a cookie left in
+        # the session by login cannot authenticate the request instead
+        self.session.cookies.clear()
         if send["via"] == "header":
             headers = {send["name"]: send.get("prefix", "") + token}
             resp = self.session.get(cfg.base_url + path, headers=headers)
         elif send["via"] == "cookie":
-            self.session.cookies.clear()
             self.session.cookies.set(send["name"], token)
             resp = self.session.get(cfg.base_url + path)
         else:
